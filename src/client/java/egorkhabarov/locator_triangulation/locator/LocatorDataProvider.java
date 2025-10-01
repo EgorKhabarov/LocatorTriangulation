@@ -68,14 +68,14 @@ public class LocatorDataProvider {
 
         StringBuilder sb = new StringBuilder();
         sb.append("Self: ")
-          .append(String.format("(%.2f, %.2f, %.2f)", info.self.x, info.self.y, info.self.z))
-          .append(" yaw=").append(String.format("%.1f°", info.self.yaw))
+          .append(String.format("(%.2f, %.2f, %.2f)", info.self.x(), info.self.y(), info.self.z()))
+          .append(" yaw=").append(String.format("%.1f°", info.self.yaw()))
           .append("\n");
 
         for (TargetInfo target : info.targets) {
-            sb.append(" - ").append(target.name)
-              .append(" | yaw=").append(String.format("%.1f°", target.yaw))
-              .append(" | dist=").append(String.format("%.2f", target.distance))
+            sb.append(" - ").append(target.name())
+              .append(" | yaw=").append(String.format("%.1f°", target.yaw()))
+              .append(" | dist=").append(String.format("%.2f", target.distance()))
               .append("\n");
         }
         return sb.toString().trim();
