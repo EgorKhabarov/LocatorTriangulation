@@ -8,7 +8,7 @@ public class Triangulation {
     /**
      * @param error отклонение пересечения
      */
-    public record Result(double x, double z, double error) {}
+    public record Result(double x, double z, double error, double angle) {}
 
     /**
      * TODO Принимать PlayerInfo pos1, PlayerInfo pos2
@@ -63,6 +63,11 @@ public class Triangulation {
             error = Math.hypot(r1x - r2x, r1z - r2z);
         }
 
-        return Optional.of(new Result(ix, iz, error));
+        // Угол между лучами
+        double dot = dx1*dx2 + dz1*dz2; // Скалярное произведение
+        dot = Math.max(-1.0, Math.min(1.0, dot)); // Защита от ошибок округления
+        double angle = Math.toDegrees(Math.acos(dot));
+
+        return Optional.of(new Result(ix, iz, error, angle));
     }
 }

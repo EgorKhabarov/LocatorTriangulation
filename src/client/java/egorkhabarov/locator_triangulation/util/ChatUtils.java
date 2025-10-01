@@ -45,18 +45,23 @@ public class ChatUtils {
         ChatUtils.sendModMessage(Text.literal(message).formatted(Formatting.GREEN));
     }
 
-    public static Text formatPlayerCoordinates(double x, double z, double error) {
+    // public static Text formatLocatorData() {}
+
+    public static Text formatPlayerCoordinates(double x, double z, double error, double angle) {
         String coordsRaw = String.format("%.0f %.0f", x, z);
-        return Text.literal(coordsRaw)
+        MutableText coords = Text.literal(coordsRaw)
             .styled(style -> style
-                .withColor(Formatting.UNDERLINE)
-                .withColor(Formatting.GRAY)
+                .withFormatting(Formatting.GRAY, Formatting.UNDERLINE)
                 .withClickEvent(new ClickEvent.CopyToClipboard(coordsRaw))
                 .withHoverEvent(new HoverEvent.ShowText(Text.literal("Click to copy coordinates")))
-            ).append(
-                Text.literal(String.format(" ~%.2f", error))
-                    .formatted(Formatting.DARK_GRAY)
             );
+        return coords.append(
+            Text.literal(String.format(" ~%.2f", error))
+                .formatted(Formatting.DARK_GRAY)
+        ).append(
+            Text.literal(String.format(" %.1f°", angle))
+                .formatted(Formatting.GRAY)
+        );
     }
 
     public static void sendLocatorResult(/*UUID uuid, */String name, Triangulation.Result result) {
@@ -74,7 +79,7 @@ public class ChatUtils {
         }*/
         // String playerNameText = name;
 
-        Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.error());
+        Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.error(), result.angle());
         ChatUtils.sendModMessage(name, ": ", formattedPlayerCoordinates);
     }
 
@@ -95,7 +100,7 @@ public class ChatUtils {
         for (String name : calculated.keySet()) {
             if (!first) text.append("\n");
             Triangulation.Result result = calculated.get(name);
-            Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.error());
+            Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.error(), result.angle());
             text.append(String.format("%" + maxLength + "s", name))
                 .append(": ")
                 .append(formattedPlayerCoordinates);

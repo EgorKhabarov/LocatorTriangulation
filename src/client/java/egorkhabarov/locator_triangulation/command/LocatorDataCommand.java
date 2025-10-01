@@ -132,8 +132,14 @@ public class LocatorDataCommand {
                                     names.add(p.getGameProfile().getName());
                                 }
                             }
-                            for (String name : names) {
-                                builder.suggest(name);
+                            if (client.player != null) {
+                                String selfName = client.player.getName().getString();
+                                for (String name : names) {
+                                    if (name.equalsIgnoreCase(selfName)) {
+                                        continue;
+                                    }
+                                    builder.suggest(name);
+                                }
                             }
                             return builder.buildFuture();
                         })
