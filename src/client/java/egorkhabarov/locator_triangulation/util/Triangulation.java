@@ -1,44 +1,31 @@
 package egorkhabarov.locator_triangulation.util;
 
-import egorkhabarov.locator_triangulation.state.LocatorInfo;
-import egorkhabarov.locator_triangulation.state.TargetInfo;
+import egorkhabarov.locator_triangulation.state.PlayerInfo;
 
 import java.util.Optional;
 
 public class Triangulation {
-    public static class Result {
-        public final double x;
-        public final double z;
-        public final double error; // отклонение пересечения
-
-        public Result(double x, double z, double error) {
-            this.x = x;
-            this.z = z;
-            this.error = error;
-        }
-    }
+    /**
+     * @param error отклонение пересечения
+     */
+    public record Result(double x, double z, double error) {}
 
     /**
      * TODO Принимать PlayerInfo pos1, PlayerInfo pos2
      *      Данные подставлять в PlayerInfo на этапе передачи
      *
-     * @param a .
-     * @param b .
-     * @param playerName .
+     * @param pos1 .
+     * @param pos2 .
      * @return .
      */
-    public static Optional<Result> triangulate(LocatorInfo a, LocatorInfo b, String playerName) {
-        if (a == null || b == null) return Optional.empty();
+    public static Optional<Result> triangulate(PlayerInfo pos1, PlayerInfo pos2) {
+        if (pos1 == null || pos2 == null) return Optional.empty();
 
-        TargetInfo ta = findByName(a, playerName);
-        TargetInfo tb = findByName(b, playerName);
-        if (ta == null || tb == null) return Optional.empty();
+        double x1 = pos1.x(), z1 = pos1.z();
+        double x2 = pos2.x(), z2 = pos2.z();
 
-        double x1 = a.self.x(), z1 = a.self.z();
-        double x2 = b.self.x(), z2 = b.self.z();
-
-        double theta1 = Math.toRadians(ta.yaw() + 90.0);
-        double theta2 = Math.toRadians(tb.yaw() + 90.0);
+        double theta1 = Math.toRadians(pos1.yaw() + 90.0);
+        double theta2 = Math.toRadians(pos2.yaw() + 90.0);
         double dx1 = Math.cos(theta1), dz1 = Math.sin(theta1);
         double dx2 = Math.cos(theta2), dz2 = Math.sin(theta2);
 
@@ -77,13 +64,5 @@ public class Triangulation {
         }
 
         return Optional.of(new Result(ix, iz, error));
-    }
-
-    private static TargetInfo findByName(LocatorInfo info, String name) {
-        if (info == null || info.targets == null) return null;
-        for (TargetInfo t : info.targets) {
-            if (t.name() != null && t.name().equalsIgnoreCase(name)) return t;
-        }
-        return null;
     }
 }

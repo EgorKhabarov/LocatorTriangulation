@@ -1,14 +1,15 @@
 package egorkhabarov.locator_triangulation.util;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.text.MutableText;
 import net.minecraft.util.Formatting;
 
-import java.util.UUID;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class ChatUtils {
     static Text prefix = Text.literal("[")
@@ -44,7 +45,7 @@ public class ChatUtils {
         ChatUtils.sendModMessage(Text.literal(message).formatted(Formatting.GREEN));
     }
 
-    public static Text formatPlayerCoordinates(double x, double z, double distance) {
+    public static Text formatPlayerCoordinates(double x, double z, double error) {
         String coordsRaw = String.format("%.0f %.0f", x, z);
         return Text.literal(coordsRaw)
             .styled(style -> style
@@ -53,12 +54,12 @@ public class ChatUtils {
                 .withClickEvent(new ClickEvent.CopyToClipboard(coordsRaw))
                 .withHoverEvent(new HoverEvent.ShowText(Text.literal("Click to copy coordinates")))
             ).append(
-                Text.literal(String.format(" ~%.0fm", distance))
+                Text.literal(String.format(" ~%.2f", error))
                     .formatted(Formatting.DARK_GRAY)
             );
     }
 
-    public static void sendLocatorResult(/*UUID uuid, */String name, double x, double z, double error) {
+    public static void sendLocatorResult(/*UUID uuid, */String name, Triangulation.Result result) {
         // Ник игрока: если в табе есть форматированный displayName (с цветом), используем его,
         // иначе — просто plain белый текст
         /*Text playerNameText;
@@ -72,7 +73,44 @@ public class ChatUtils {
             playerNameText = Text.literal(name).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xFFFFFF)));
         }*/
         // String playerNameText = name;
-        Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(x, z, error);
+
+        Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.error());
         ChatUtils.sendModMessage(name, ": ", formattedPlayerCoordinates);
+    }
+
+    public static void sendLocatorResults(Map<String, Triangulation.Result> calculated, Set<String> missed) {
+        Set<String> unionNames = new HashSet<>(calculated.keySet());
+        unionNames.addAll(missed);
+        int maxLength = unionNames.stream()
+            .mapToInt(String::length)
+            .max()
+            .orElse(0);
+
+        if (maxLength > 16) {
+            maxLength = 16;
+        }
+
+        MutableText text = Text.literal("");
+        for (String name : calculated.keySet()) {
+            Triangulation.Result result = calculated.get(name);
+            Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.error());
+            text
+                .append(String.format("%" + maxLength + "s", name))
+                .append(": ")
+                .append(formattedPlayerCoordinates)
+                .append("\n");
+        }
+        for (String name : missed) {
+            text
+                .append(
+                    Text.literal(name)
+                        .formatted(
+                            Formatting.RED,
+                            Formatting.STRIKETHROUGH,
+                            Formatting.ITALIC
+                        )
+                ).append("\n");
+        }
+        ChatUtils.sendModMessage(text);
     }
 }

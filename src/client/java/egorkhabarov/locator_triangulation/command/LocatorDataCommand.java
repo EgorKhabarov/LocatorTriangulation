@@ -1,19 +1,18 @@
 package egorkhabarov.locator_triangulation.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import egorkhabarov.locator_triangulation.data_providers.PlayerDataProvider;
+import egorkhabarov.locator_triangulation.state.*;
 import egorkhabarov.locator_triangulation.util.ChatUtils;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
-import egorkhabarov.locator_triangulation.locator.LocatorDataProvider;
-import egorkhabarov.locator_triangulation.state.LocatorInfo;
-import egorkhabarov.locator_triangulation.state.LocatorState;
+import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.entity.player.PlayerEntity;
+import egorkhabarov.locator_triangulation.data_providers.LocatorDataProvider;
 import egorkhabarov.locator_triangulation.util.Triangulation;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class LocatorDataCommand {
     public static void register() {
@@ -27,7 +26,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("pos1")
+            dispatcher.register(ClientCommandManager.literal("locator_pos1")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
                     LocatorInfo info = LocatorDataProvider.getLocatorInfo(client);
@@ -41,7 +40,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("pos2")
+            dispatcher.register(ClientCommandManager.literal("locator_pos2")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
                     LocatorInfo info = LocatorDataProvider.getLocatorInfo(client);
@@ -55,7 +54,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("clear_pos1")
+            dispatcher.register(ClientCommandManager.literal("clear_locator_pos1")
                 .executes(context -> {
                     LocatorState.clearPos1();
                     ChatUtils.sendConfirmationMessage("pos1 cleared");
@@ -63,7 +62,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("clear_pos2")
+            dispatcher.register(ClientCommandManager.literal("clear_locator_pos2")
                 .executes(context -> {
                     LocatorState.clearPos2();
                     ChatUtils.sendConfirmationMessage("pos2 cleared");
@@ -71,7 +70,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("clear_poses")
+            dispatcher.register(ClientCommandManager.literal("clear_locator_poses")
                 .executes(context -> {
                     LocatorState.clearAll();
                     ChatUtils.sendConfirmationMessage("pos1 and pos2 cleared");
@@ -79,7 +78,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("get_pos1")
+            dispatcher.register(ClientCommandManager.literal("get_locator_pos1")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
                     LocatorInfo info = LocatorState.getPos1();
@@ -89,7 +88,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("get_pos2")
+            dispatcher.register(ClientCommandManager.literal("get_locator_pos2")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
                     LocatorInfo info = LocatorState.getPos2();
@@ -99,7 +98,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("get_poses")
+            dispatcher.register(ClientCommandManager.literal("get_locator_poses")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
                     ChatUtils.sendInfoMessage(
@@ -114,18 +113,45 @@ public class LocatorDataCommand {
 
             // locate <playername>
             dispatcher.register(
-                ClientCommandManager.literal("locate")
-                    .then(ClientCommandManager.argument("player", StringArgumentType.word())
-                        .executes(context -> {
-                            String target = StringArgumentType.getString(context, "player");
+                ClientCommandManager.literal("locator_locate")
+                    .then(ClientCommandManager.argument("player", EntityArgumentType.player())
+                        // .suggests((context, builder) -> {
+                        //     MinecraftClient client = MinecraftClient.getInstance();
+                        //     if (client.world != null) {
+                        //         for (PlayerEntity p : client.world.getPlayers()) {
+                        //             System.out.println(p.getGameProfile().getName());
+                        //         }
+                        //     }
+                        //     return builder.buildFuture();
+                        // })
+                        .suggests((context, builder) -> {
                             MinecraftClient client = MinecraftClient.getInstance();
-                            handleLocateSingle(client, target);
+                            Set<String> names = LocatorState.getNamesMap().keySet();
+                            if (client.world != null) {
+                                for (PlayerEntity p : client.world.getPlayers()) {
+                                    names.add(p.getGameProfile().getName());
+                                }
+                            }
+                            for (String name : names) {
+                                builder.suggest(name);
+                            }
+                            return builder.buildFuture();
+                        })
+                        .executes(context -> {
+                            MinecraftClient client = MinecraftClient.getInstance();
+                            String target_name = StringArgumentType.getString(context, "player");
+                            Map<String, UUID> namesMap = LocatorState.getNamesMap();
+                            UUID uuid = namesMap.get(target_name);
+                            if (uuid == null) {
+                                ChatUtils.sendErrorMessage(String.format("Player \"%s\" not found in saved snapshots", target_name));
+                            }
+                            handleLocateSingle(client, uuid, target_name);
                             return 1;
                         })
                     )
             );
 
-            dispatcher.register(ClientCommandManager.literal("locate_all")
+            dispatcher.register(ClientCommandManager.literal("locator_locate_all")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
                     handleLocateAll(client);
@@ -136,6 +162,13 @@ public class LocatorDataCommand {
             dispatcher.register(ClientCommandManager.literal("end_portal_pos1")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
+                    PlayerInfo playerInfo = PlayerDataProvider.getPlayerInfo(client);
+                    if (playerInfo == null) {
+                        ChatUtils.sendErrorMessage("Failed to capture pos1");
+                    } else {
+                        TriangulationState.setPos1(playerInfo);
+                        ChatUtils.sendConfirmationMessage("pos1 saved");
+                    }
                     return 1;
                 })
             );
@@ -143,46 +176,67 @@ public class LocatorDataCommand {
             dispatcher.register(ClientCommandManager.literal("end_portal_pos2")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
+                    PlayerInfo playerInfo = PlayerDataProvider.getPlayerInfo(client);
+                    if (playerInfo == null) {
+                        ChatUtils.sendErrorMessage("Failed to capture pos2");
+                    } else {
+                        TriangulationState.setPos2(playerInfo);
+                        ChatUtils.sendConfirmationMessage("pos2 saved");
+                    }
                     return 1;
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("locate_end_portal")
+            dispatcher.register(ClientCommandManager.literal("triangulation_locate")
+                .executes(context -> {
+                    MinecraftClient client = MinecraftClient.getInstance();
+                    // TODO
+                    return 1;
+                })
+            );
+
+            dispatcher.register(ClientCommandManager.literal("clear_triangulation_pos1")
+                .executes(context -> {
+                    TriangulationState.clearPos1();
+                    ChatUtils.sendConfirmationMessage("pos1 cleared");
+                    return 1;
+                })
+            );
+
+            dispatcher.register(ClientCommandManager.literal("clear_triangulation_pos2")
+                .executes(context -> {
+                    TriangulationState.clearPos2();
+                    ChatUtils.sendConfirmationMessage("pos2 cleared");
+                    return 1;
+                })
+            );
+
+            dispatcher.register(ClientCommandManager.literal("clear_triangulation_poses")
+                .executes(context -> {
+                    TriangulationState.clearAll();
+                    ChatUtils.sendConfirmationMessage("pos1 and pos2 cleared");
+                    return 1;
+                })
+            );
+
+            dispatcher.register(ClientCommandManager.literal("get_triangulation_pos1")
+                .executes(context -> {
+                    MinecraftClient client = MinecraftClient.getInstance();
+                    // LocatorInfo info = LocatorState.getPos1();
+                    // String data = LocatorDataProvider.getLocatorDebugInfo(client, info);
+                    // ChatUtils.sendInfoMessage("pos1: " + data);
+                    return 1;
+                })
+            );
+
+            dispatcher.register(ClientCommandManager.literal("get_triangulation_pos2")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
                     return 1;
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("clear_end_portal_pos1")
-                .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
-                    return 1;
-                })
-            );
-
-            dispatcher.register(ClientCommandManager.literal("clear_end_portal_pos2")
-                .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
-                    return 1;
-                })
-            );
-
-            dispatcher.register(ClientCommandManager.literal("get_end_portal_pos1")
-                .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
-                    return 1;
-                })
-            );
-
-            dispatcher.register(ClientCommandManager.literal("get_end_portal_pos2")
-                .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
-                    return 1;
-                })
-            );
-
-            dispatcher.register(ClientCommandManager.literal("get_end_portal_poses")
+            dispatcher.register(ClientCommandManager.literal("get_triangulation_poses")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
                     return 1;
@@ -191,56 +245,70 @@ public class LocatorDataCommand {
         });
     }
 
-    private static void handleLocateSingle(MinecraftClient client, String target) {
+    private static Optional<Triangulation.Result> getLocateSingle(UUID uuid) {
+        LocatorInfo pos1 = LocatorState.getPos1();
+        LocatorInfo pos2 = LocatorState.getPos2();
+
+        if (pos1 == null || pos2 == null) {
+            ChatUtils.sendErrorMessage("Need both pos1 and pos2");
+            return Optional.empty();
+        }
+        PlayerInfo self1 = pos1.self();
+        PlayerInfo self2 = pos2.self();
+        double x1 = self1.x(), z1 = self1.z();
+        double x2 = self2.x(), z2 = self2.z();
+
+        TargetInfo target1 = pos1.targets().get(uuid);
+        TargetInfo target2 = pos2.targets().get(uuid);
+
+        if (target1 == null || target2 == null) {
+            return Optional.empty();
+        }
+        double yaw1 = target1.yaw(), yaw2 = target2.yaw();
+
+        return Triangulation.triangulate(
+            new PlayerInfo(x1, z1, yaw1),
+            new PlayerInfo(x2, z2, yaw2)
+        );
+    }
+
+    private static void handleLocateSingle(MinecraftClient client, UUID uuid, String target_name) {
         if (client.player == null) return;
 
-        LocatorInfo p1 = LocatorState.getPos1();
-        LocatorInfo p2 = LocatorState.getPos2();
-
-        if (p1 == null || p2 == null) {
-            ChatUtils.sendErrorMessage("Need both pos1 and pos2 (use /pos1 and /pos2)");
+        Optional<Triangulation.Result> result = LocatorDataCommand.getLocateSingle(uuid);
+        if (result.isEmpty()) {
+            ChatUtils.sendErrorMessage(String.format("Player \"%s\" not found in saved snapshots", target_name));
             return;
         }
-
-        Optional<Triangulation.Result> res = Triangulation.triangulate(p1, p2, target);
-        if (res.isEmpty()) {
-            ChatUtils.sendErrorMessage(String.format("Player \"%s\" not found in saved snapshots", target));
-            return;
-        }
-
-        Triangulation.Result r = res.get();
-
-        client.player.sendMessage(Text.literal(String.format("[Locator] %s -> x=%.3f z=%.3f (error=%.3fm)", target, r.x, r.z, r.error)), false);
+        Triangulation.Result r = result.get();
+        ChatUtils.sendLocatorResult(target_name, r);
     }
 
     private static void handleLocateAll(MinecraftClient client) {
         if (client.player == null) return;
 
-        LocatorInfo p1 = LocatorState.getPos1();
-        LocatorInfo p2 = LocatorState.getPos2();
-        if (p1 == null || p2 == null) {
-            ChatUtils.sendErrorMessage("Need both pos1 and pos2 (use /pos1 and /pos2)");
-            return;
-        }
+        Map<String, UUID> names = LocatorState.getNamesMap();
 
-        Set<String> names = new HashSet<>();
-        for (var t : p1.targets) if (t.name() != null) names.add(t.name());
-        for (var t : p2.targets) if (t.name() != null) names.add(t.name());
-
-        String selfName = client.player.getName().getString();
+        // String selfName = client.player.getName().getString();
+        Map<String, Triangulation.Result> calculated = new HashMap<>();
+        Set<String> missed = new HashSet<>();
         int found = 0;
-        for (String name : names) {
-            if (name.equalsIgnoreCase(selfName)) continue;
-            Optional<Triangulation.Result> rOpt = Triangulation.triangulate(p1, p2, name);
-            if (rOpt.isPresent()) {
-                found++;
-                Triangulation.Result r = rOpt.get();
-                // client.player.sendMessage(Text.literal(String.format("[Locator] %s -> x=%.3f z=%.3f (error=%.3fm)", name, r.x, r.z, r.error)), false);
-                ChatUtils.sendLocatorResult(name, r.x, r.z, r.error);
+        for (String name : names.keySet()) {
+            UUID uuid = names.get(name);
+            // if (name.equalsIgnoreCase(selfName)) continue;
+            Optional<Triangulation.Result> result = LocatorDataCommand.getLocateSingle(uuid);
+
+            if (result.isEmpty()) {
+                missed.add(name);
+                continue;
             }
+            calculated.put(name, result.get());
+            found++;
         }
         if (found == 0) {
             ChatUtils.sendErrorMessage("No players located (in snapshots)");
+        } else {
+            ChatUtils.sendLocatorResults(calculated, missed);
         }
     }
 }

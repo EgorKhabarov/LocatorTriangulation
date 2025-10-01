@@ -1,4 +1,4 @@
-package egorkhabarov.locator_triangulation.locator;
+package egorkhabarov.locator_triangulation.data_providers;
 
 import egorkhabarov.locator_triangulation.state.LocatorInfo;
 import egorkhabarov.locator_triangulation.state.TargetInfo;
@@ -9,9 +9,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.world.waypoint.TrackedWaypoint;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class LocatorDataProvider {
     public static LocatorInfo getLocatorInfo(MinecraftClient client) {
@@ -23,7 +21,8 @@ public class LocatorDataProvider {
         ClientPlayNetworkHandler networkHandler = player.networkHandler;
         if (networkHandler == null || networkHandler.getWaypointHandler() == null) return null;
 
-        List<TargetInfo> targets = new ArrayList<>();
+        // List<TargetInfo> targets = new ArrayList<>();
+        Map<UUID, TargetInfo> targets = new HashMap<>();
 
         networkHandler.getWaypointHandler().forEachWaypoint(client.cameraEntity, (TrackedWaypoint waypoint) -> {
             try {
@@ -48,14 +47,12 @@ public class LocatorDataProvider {
 
                 UUID uuid = waypoint.getSource().left().orElse(null);
 
-                targets.add(new TargetInfo(uuid, displayName, mcYaw, distance));
+                targets.put(uuid, new TargetInfo(uuid, displayName, mcYaw, distance));
             } catch (Exception ignored) {}
         });
 
-        return new LocatorInfo(
-            new PlayerInfo(player.getX(), player.getY(), player.getZ(), player.getYaw()),
-            targets
-        );
+        PlayerInfo playerInfo = PlayerDataProvider.getPlayerInfo(client);
+        return new LocatorInfo(playerInfo, targets);
     }
 
     public static String getLocatorDebugInfo(MinecraftClient client) {
@@ -68,11 +65,15 @@ public class LocatorDataProvider {
 
         StringBuilder sb = new StringBuilder();
         sb.append("Self: ")
-          .append(String.format("(%.2f, %.2f, %.2f)", info.self.x(), info.self.y(), info.self.z()))
-          .append(" yaw=").append(String.format("%.1f°", info.self.yaw()))
+          .append(String.format("(%.2f, %.2f)", info.self().x(), info.self().z()))
+          .append(" yaw=").append(String.format("%.1f°", info.self().yaw()))
           .append("\n");
 
-        for (TargetInfo target : info.targets) {
+        for (UUID key : info.targets().keySet()) {
+            TargetInfo target = info.targets().get(key);
+            if (target == null) {
+                continue;
+            }
             sb.append(" - ").append(target.name())
               .append(" | yaw=").append(String.format("%.1f°", target.yaw()))
               .append(" | dist=").append(String.format("%.2f", target.distance()))
