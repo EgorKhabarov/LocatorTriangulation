@@ -91,25 +91,27 @@ public class ChatUtils {
         }
 
         MutableText text = Text.literal("");
+        boolean first = true;
         for (String name : calculated.keySet()) {
+            if (!first) text.append("\n");
             Triangulation.Result result = calculated.get(name);
             Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.error());
-            text
-                .append(String.format("%" + maxLength + "s", name))
+            text.append(String.format("%" + maxLength + "s", name))
                 .append(": ")
-                .append(formattedPlayerCoordinates)
-                .append("\n");
+                .append(formattedPlayerCoordinates);
+            first = false;
         }
         for (String name : missed) {
-            text
-                .append(
-                    Text.literal(name)
-                        .formatted(
-                            Formatting.RED,
-                            Formatting.STRIKETHROUGH,
-                            Formatting.ITALIC
-                        )
-                ).append("\n");
+            if (!first) text.append("\n");
+            text.append(
+                Text.literal(name)
+                    .formatted(
+                        Formatting.RED,
+                        Formatting.STRIKETHROUGH,
+                        Formatting.ITALIC
+                    )
+            );
+            first = false;
         }
         ChatUtils.sendModMessage(text);
     }

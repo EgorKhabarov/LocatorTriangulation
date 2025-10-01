@@ -114,7 +114,7 @@ public class LocatorDataCommand {
             // locate <playername>
             dispatcher.register(
                 ClientCommandManager.literal("locator_locate")
-                    .then(ClientCommandManager.argument("player", EntityArgumentType.player())
+                    .then(ClientCommandManager.argument("player", StringArgumentType.word())
                         // .suggests((context, builder) -> {
                         //     MinecraftClient client = MinecraftClient.getInstance();
                         //     if (client.world != null) {
@@ -126,7 +126,7 @@ public class LocatorDataCommand {
                         // })
                         .suggests((context, builder) -> {
                             MinecraftClient client = MinecraftClient.getInstance();
-                            Set<String> names = LocatorState.getNamesMap().keySet();
+                            Set<String> names = new HashSet<>(LocatorState.getNamesMap().keySet());
                             if (client.world != null) {
                                 for (PlayerEntity p : client.world.getPlayers()) {
                                     names.add(p.getGameProfile().getName());
