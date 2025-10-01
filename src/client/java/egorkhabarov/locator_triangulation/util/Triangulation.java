@@ -1,7 +1,7 @@
-package egorkhabarov.trigonolocator.util;
+package egorkhabarov.locator_triangulation.util;
 
-import egorkhabarov.trigonolocator.locator.LocatorInfo;
-import egorkhabarov.trigonolocator.locator.LocatorInfo.TargetInfo;
+import egorkhabarov.locator_triangulation.state.LocatorInfo;
+import egorkhabarov.locator_triangulation.state.TargetInfo;
 
 import java.util.Optional;
 
@@ -18,6 +18,15 @@ public class Triangulation {
         }
     }
 
+    /**
+     * TODO Принимать PlayerInfo pos1, PlayerInfo pos2
+     *      Данные подставлять в PlayerInfo на этапе передачи
+     *
+     * @param a .
+     * @param b .
+     * @param playerName .
+     * @return .
+     */
     public static Optional<Result> triangulate(LocatorInfo a, LocatorInfo b, String playerName) {
         if (a == null || b == null) return Optional.empty();
 
@@ -25,11 +34,11 @@ public class Triangulation {
         TargetInfo tb = findByName(b, playerName);
         if (ta == null || tb == null) return Optional.empty();
 
-        double x1 = a.self.x, z1 = a.self.z;
-        double x2 = b.self.x, z2 = b.self.z;
+        double x1 = a.self.x(), z1 = a.self.z();
+        double x2 = b.self.x(), z2 = b.self.z();
 
-        double theta1 = Math.toRadians(ta.yaw + 90.0);
-        double theta2 = Math.toRadians(tb.yaw + 90.0);
+        double theta1 = Math.toRadians(ta.yaw() + 90.0);
+        double theta2 = Math.toRadians(tb.yaw() + 90.0);
         double dx1 = Math.cos(theta1), dz1 = Math.sin(theta1);
         double dx2 = Math.cos(theta2), dz2 = Math.sin(theta2);
 
@@ -73,7 +82,7 @@ public class Triangulation {
     private static TargetInfo findByName(LocatorInfo info, String name) {
         if (info == null || info.targets == null) return null;
         for (TargetInfo t : info.targets) {
-            if (t.name != null && t.name.equalsIgnoreCase(name)) return t;
+            if (t.name() != null && t.name().equalsIgnoreCase(name)) return t;
         }
         return null;
     }

@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "trigonolocator",
+	"id": "locator_triangulation",
 	"version": "${version}",
-	"name": "Trigonolocator",
-	"description": "Calculating players' coordinates using trigonometry",
+	"name": "Locator Triangulation",
+	"description": "Calculating players coordinates using triangulation",
 	"authors": [
 		"EgorKhabarov"
 	],
@@ -12,11 +12,11 @@
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/trigonolocator/icon.png",
+	"icon": "assets/locator_triangulation/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"client": [
-			"egorkhabarov.trigonolocator.TrigonolocatorMod"
+			"egorkhabarov.locator_triangulation.LocatorTriangulationClient"
 		]
 	},
 	"depends": {
