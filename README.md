@@ -1,11 +1,8 @@
 # Locator Triangulation
 
-
-
 <a target="_blank" href="https://github.com/EgorKhabarov/LocatorTriangulation">
     <!-- https://img.shields.io/badge/GitHub-14121c?logo=GitHub&logoColor=white -->
     <svg xmlns="http://www.w3.org/2000/svg" width="65" height="20" role="img" aria-label="GitHub">
-        <title>GitHub</title>
         <linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
         <clipPath id="r"><rect width="65" height="20" rx="3" fill="#fff"/></clipPath>
         <g clip-path="url(#r)">
