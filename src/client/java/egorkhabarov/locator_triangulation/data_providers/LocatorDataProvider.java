@@ -21,7 +21,6 @@ public class LocatorDataProvider {
         ClientPlayNetworkHandler networkHandler = player.networkHandler;
         if (networkHandler == null || networkHandler.getWaypointHandler() == null) return null;
 
-        // List<TargetInfo> targets = new ArrayList<>();
         Map<UUID, TargetInfo> targets = new HashMap<>();
 
         networkHandler.getWaypointHandler().forEachWaypoint(client.cameraEntity, (TrackedWaypoint waypoint) -> {

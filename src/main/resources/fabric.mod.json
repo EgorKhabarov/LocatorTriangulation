@@ -8,10 +8,9 @@
 		"EgorKhabarov"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/EgorKhabarov/LocatorTriangulation"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/locator_triangulation/icon.png",
 	"environment": "*",
 	"entrypoints": {
