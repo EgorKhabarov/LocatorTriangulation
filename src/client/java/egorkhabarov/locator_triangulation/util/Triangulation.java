@@ -5,19 +5,8 @@ import egorkhabarov.locator_triangulation.state.PlayerInfo;
 import java.util.Optional;
 
 public class Triangulation {
-    /**
-     * @param error отклонение пересечения
-     */
     public record Result(double x, double z, double error, double angle) {}
 
-    /**
-     * TODO Принимать PlayerInfo pos1, PlayerInfo pos2
-     *      Данные подставлять в PlayerInfo на этапе передачи
-     *
-     * @param pos1 .
-     * @param pos2 .
-     * @return .
-     */
     public static Optional<Result> triangulate(PlayerInfo pos1, PlayerInfo pos2) {
         if (pos1 == null || pos2 == null) return Optional.empty();
 
@@ -49,7 +38,7 @@ public class Triangulation {
             iz = (r1z + r2z) / 2.0;
             error = Math.hypot(r1x - r2x, r1z - r2z);
         } else {
-            // почти параллельные
+            // Almost parallel
             double dotD1 = dx1*dx1 + dz1*dz1;
             double tProj = (rx*dx1 + rz*dz1) / dotD1;
             double r1x = x1 + tProj * dx1;
@@ -63,9 +52,9 @@ public class Triangulation {
             error = Math.hypot(r1x - r2x, r1z - r2z);
         }
 
-        // Угол между лучами
-        double dot = dx1*dx2 + dz1*dz2; // Скалярное произведение
-        dot = Math.max(-1.0, Math.min(1.0, dot)); // Защита от ошибок округления
+        // Angle between rays
+        double dot = dx1*dx2 + dz1*dz2; // Dot product
+        dot = Math.max(-1.0, Math.min(1.0, dot)); // Protection against rounding errors
         double angle = Math.toDegrees(Math.acos(dot));
 
         return Optional.of(new Result(ix, iz, error, angle));

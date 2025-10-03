@@ -33,7 +33,6 @@ public class LocatorDataProvider {
 
                 double distance = Math.sqrt(waypoint.squaredDistanceTo(client.cameraEntity));
 
-                // Имя игрока или строка
                 String displayName = waypoint.getSource().map(
                     uuid -> {
                         PlayerListEntry ple = networkHandler.getPlayerListEntry(uuid);
@@ -53,32 +52,5 @@ public class LocatorDataProvider {
 
         PlayerInfo playerInfo = PlayerDataProvider.getPlayerInfo(client);
         return new LocatorInfo(playerInfo, targets);
-    }
-
-    public static String getLocatorDebugInfo(MinecraftClient client) {
-        return LocatorDataProvider.getLocatorDebugInfo(client, null);
-    }
-
-    public static String getLocatorDebugInfo(MinecraftClient client, LocatorInfo info) {
-        if (info == null) info = LocatorDataProvider.getLocatorInfo(client);
-        if (info == null) return "No locator data available";
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Self: ")
-          .append(String.format("(%.2f, %.2f)", info.self().x(), info.self().z()))
-          .append(" yaw=").append(String.format("%.1f°", info.self().yaw()))
-          .append("\n");
-
-        for (UUID key : info.targets().keySet()) {
-            TargetInfo target = info.targets().get(key);
-            if (target == null) {
-                continue;
-            }
-            sb.append(" - ").append(target.name())
-              .append(" | yaw=").append(String.format("%.1f°", target.yaw()))
-              .append(" | dist=").append(String.format("%.2f", target.distance()))
-              .append("\n");
-        }
-        return sb.toString().trim();
     }
 }

@@ -16,24 +16,31 @@ public class LocatorState {
     public static void clearPos2() {pos2 = null;}
     public static void clearAll() {pos1 = null; pos2 = null;}
 
+    /**
+     * A dictionary of names that can be calculated
+     * @return .
+     */
     public static Map<String, UUID> getNamesMap() {
-        Map<String, UUID> names = new HashMap<>();
-        if (pos1 != null) {
-            for (UUID key : pos1.targets().keySet()) {
-                TargetInfo target = pos1.targets().get(key);
-                if (target == null || target.name() == null || target.uuid() == null) {
-                    continue;
-                }
-                names.put(target.name(), target.uuid());
-            }
+        if (pos1 == null || pos2 == null) {
+            return new HashMap<>();
         }
-        if (pos2 != null) {
-            for (UUID key : pos2.targets().keySet()) {
-                TargetInfo target = pos2.targets().get(key);
-                if (target == null || target.name() == null || target.uuid() == null) {
+        Map<String, UUID> names = new HashMap<>();
+
+        for (UUID uuid : pos1.targets().keySet()) {
+            TargetInfo target1 = pos1.targets().get(uuid);
+            if (target1 == null || target1.name() == null || target1.uuid() == null) {
+                continue;
+            }
+
+            if (pos2.targets().containsKey(uuid)) {
+                TargetInfo target2 = pos2.targets().get(uuid);
+                if (target2 == null || target2.name() == null || target2.uuid() == null) {
                     continue;
                 }
-                names.put(target.name(), target.uuid());
+
+                if (target1.uuid().equals(target2.uuid())) {
+                    names.put(target1.name(), target1.uuid());
+                }
             }
         }
         return names;
