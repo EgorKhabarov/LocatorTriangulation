@@ -3,23 +3,41 @@
 <!--
 <a target="_blank" href="https://github.com/EgorKhabarov/LocatorTriangulation">
     <img src="https://raw.githubusercontent.com/EgorKhabarov/EgorKhabarov.github.io/refs/heads/master/resources/badges/GitHub.svg" alt="GitHub">
-</a>
+</a>&nbsp;
 -->
 <a target="_blank" href="https://github.com/EgorKhabarov/LocatorTriangulation/actions/workflows/build.yml">
   <img src="https://github.com/EgorKhabarov/LocatorTriangulation/actions/workflows/build.yml/badge.svg" alt="build">
 </a>
 
-![icon.png](src/main/resources/assets/locator_triangulation/icon.png)
-
 A client-side Fabric mod that allows determining players' coordinates using triangulation.
 
+The mod calculates coordinates using publicly available data accessible to regular vanilla players and acts solely as a calculator.
+If the vanilla locator is disabled on the server or a player has hidden from it, the mod will not be able to determine their coordinates.
+Essentially, all calculations performed by the mod can be done manually with a calculator and the vanilla client.
+
+![icon.png](src/main/resources/assets/locator_triangulation/icon.png)
+
+
 ### Quick start
+
+<i>The map is for example purposes only.</i>
+![map](images/map.png)
 
 - Run `/locator_pos1` - the mod will remember the locator's state, your current position and your view yaw.
 - Move away as far as possible so the angle to the target becomes as large as possible, then run `/locator_pos2`.
 - Run:
   - `/locator_locate <name>` - attempt to compute the coordinates of player `<name>`, or
   - `/locator_locate_all` - attempt to compute coordinates of all known targets.
+
+```
+/locator_pos1
+/locator_pos2
+/locator_locate RandomPlayer
+```
+
+![locate_RandomPlayer command](images/locate_RandomPlayer.png)
+
+![triangulation lines](images/highlighted_example.png)
 
 The larger the angle between directions from the two points, the more accurate the coordinates.
 
@@ -30,8 +48,8 @@ For regular triangulation use the same commands but with the `triangulation` pre
 #### Locator commands
 
 - `/locator_data` - print current locator state
-- `/locator_pos1` - save the locator's first position, and your coordinates + view yaw
-- `/locator_pos2` - save the locator's second position, and your coordinates + view yaw
+- `/locator_pos1` - save the first position (locator state and your coordinates)
+- `/locator_pos2` - save the second position (locator state and your coordinates)
 - `/locator_get_poses` - print the saved positions
 - `/locator_clear_pos1` - clear the first position
 - `/locator_clear_pos2` - clear the second position
@@ -57,6 +75,9 @@ Near-perfect accuracy occurs at about 70-100°.
 If the angle is too small (less than 20°) or too large (150° and above), accuracy drops significantly.
 
 For maximum accuracy, take positions so that the target is roughly at a right angle relative to you.
+
+The corner color in the message indicates the calculation quality.
+Green means near-perfect accuracy, yellow is acceptable but may include a small error, and red indicates poor accuracy.
 
 ### How to hide from the locator
 
