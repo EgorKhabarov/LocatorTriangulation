@@ -31,7 +31,7 @@ public class LocatorDataCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos1");
                     } else {
                         LocatorState.setPos1(info);
-                        ChatUtils.sendConfirmationMessage("pos1 saved");
+                        ChatUtils.sendConfirmationMessage("Locator pos1 saved");
                     }
                     return 1;
                 })
@@ -45,7 +45,7 @@ public class LocatorDataCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos2");
                     } else {
                         LocatorState.setPos2(info);
-                        ChatUtils.sendConfirmationMessage("pos2 saved");
+                        ChatUtils.sendConfirmationMessage("Locator pos2 saved");
                     }
                     return 1;
                 })

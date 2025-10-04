@@ -22,7 +22,7 @@ public class TriangulationCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos1");
                     } else {
                         TriangulationState.setPos1(playerInfo);
-                        ChatUtils.sendConfirmationMessage("pos1 saved");
+                        ChatUtils.sendConfirmationMessage("Triangulation pos1 saved");
                     }
                     return 1;
                 })
@@ -36,7 +36,7 @@ public class TriangulationCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos2");
                     } else {
                         TriangulationState.setPos2(playerInfo);
-                        ChatUtils.sendConfirmationMessage("pos2 saved");
+                        ChatUtils.sendConfirmationMessage("Triangulation pos2 saved");
                     }
                     return 1;
                 })
