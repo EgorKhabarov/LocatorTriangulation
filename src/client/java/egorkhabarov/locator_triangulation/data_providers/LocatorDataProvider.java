@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.world.waypoint.TrackedWaypoint;
 
 import java.util.*;
@@ -38,14 +39,18 @@ public class LocatorDataProvider {
                         if (ple != null && ple.getProfile() != null) {
                             return ple.getProfile().getName();
                         }
-                        return "Unknown(" + uuid.toString().substring(0, 8) + ")";
+                        return "UUID-" + uuid.toString().substring(0, 8);
                     },
                     name -> name
                 );
 
-                UUID uuid = waypoint.getSource().left().orElse(null);
+                int color = waypoint.getConfig().color.orElseGet(() -> waypoint.getSource().map(
+                    uuid -> ColorHelper.withBrightness(ColorHelper.withAlpha(255, uuid.hashCode()), 0.9F),
+                    name -> ColorHelper.withBrightness(ColorHelper.withAlpha(255, name.hashCode()), 0.9F)
+                ));
 
-                targets.put(uuid, new TargetInfo(uuid, displayName, mcYaw, distance));
+                UUID uuid = waypoint.getSource().left().orElse(null);
+                targets.put(uuid, new TargetInfo(uuid, displayName, color, mcYaw, distance));
             } catch (Exception ignored) {}
         });
 

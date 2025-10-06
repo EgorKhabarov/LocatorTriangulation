@@ -8,6 +8,8 @@
 		"EgorKhabarov"
 	],
 	"contact": {
+        "homepage": "https://github.com/EgorKhabarov/LocatorTriangulation",
+        "issues": "https://github.com/EgorKhabarov/LocatorTriangulation/issues",
 		"sources": "https://github.com/EgorKhabarov/LocatorTriangulation"
 	},
 	"license": "MIT",

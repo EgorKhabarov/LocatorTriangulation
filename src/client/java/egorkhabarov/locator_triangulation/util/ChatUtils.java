@@ -1,5 +1,6 @@
 package egorkhabarov.locator_triangulation.util;
 
+import egorkhabarov.locator_triangulation.data_providers.Name;
 import egorkhabarov.locator_triangulation.state.LocatorInfo;
 import egorkhabarov.locator_triangulation.state.PlayerInfo;
 import egorkhabarov.locator_triangulation.state.TargetInfo;
@@ -7,15 +8,31 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class ChatUtils {
-    static Text prefix = Text.literal("[")
+    private static final Text prefix = Text.literal("[")
             .append(Text.literal("Locator").formatted(Formatting.YELLOW))
             .append(Text.literal("] "));
+    private static final Formatting accentColor = Formatting.YELLOW;
+    private static final Formatting bgColor = Formatting.GRAY;
+    private static final Formatting accentBgColor = Formatting.DARK_GRAY;
+
+    /**
+     * (%.0f, %.0f) yaw=%.1f°
+     */
+    public static Text formatPosition(double x, double z, double yaw) {
+        MutableText text = Text.empty();
+        text.append(Text.literal("(").formatted(ChatUtils.bgColor));
+        text.append(Text.literal(String.format("%.0f", x)).formatted(ChatUtils.accentColor));
+        text.append(Text.literal(", ").formatted(ChatUtils.bgColor));
+        text.append(Text.literal(String.format("%.0f", z)).formatted(ChatUtils.accentColor));
+        text.append(Text.literal(") yaw").formatted(ChatUtils.bgColor));
+        text.append(Text.literal("=").formatted(ChatUtils.accentBgColor));
+        text.append(Text.literal(String.format("%.1f", yaw)).formatted(ChatUtils.accentColor));
+        text.append(Text.literal(String.format("%.1f", yaw)).formatted(ChatUtils.bgColor));
+        return text;
+    }
 
     public static void sendModMessage(Object... parts) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -46,9 +63,9 @@ public class ChatUtils {
         String coordsRaw = String.format("%.0f %.0f", x, z);
         MutableText coords = Text.literal(coordsRaw)
             .styled(style -> style
-                .withFormatting(Formatting.GRAY, Formatting.UNDERLINE)
-                .withClickEvent(new ClickEvent.CopyToClipboard(coordsRaw))
+                .withFormatting(ChatUtils.bgColor, Formatting.UNDERLINE)
                 .withHoverEvent(new HoverEvent.ShowText(Text.literal("Click to copy coordinates")))
+                .withClickEvent(new ClickEvent.CopyToClipboard(coordsRaw))
             );
 
         Formatting angle_color;
@@ -67,25 +84,27 @@ public class ChatUtils {
             .append(angleText);
     }
 
-    public static void sendLocatorResult(String name, Triangulation.Result result) {
+    public static void sendLocatorResult(Name name, Triangulation.Result result) {
         Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.angle());
-        ChatUtils.sendModMessage(name, ": ", formattedPlayerCoordinates);
+        ChatUtils.sendModMessage(
+            Text.literal(name.name())
+                .styled(
+                    style -> style
+                        .withColor(name.color())
+                        .withHoverEvent(new HoverEvent.ShowText(Text.literal("UUID:" + name.uuid())))
+                        .withClickEvent(new ClickEvent.CopyToClipboard(name.uuid().toString()))
+                ),
+            ": ",
+            formattedPlayerCoordinates
+        );
     }
 
-    public static void sendLocatorResults(Map<String, Triangulation.Result> calculated, Set<String> missed) {
-        Set<String> unionNames = new HashSet<>(calculated.keySet());
+    public static void sendLocatorResults(Map<Name, Triangulation.Result> calculated, Set<Name> missed) {
+        Set<Name> unionNames = new HashSet<>(calculated.keySet());
         unionNames.addAll(missed);
-        int maxLength = unionNames.stream()
-            .mapToInt(String::length)
-            .max()
-            .orElse(0);
-
-        if (maxLength > 16) {
-            maxLength = 16;
-        }
 
         MutableText headline = Text.literal("Found: " + unionNames.size())
-            .formatted(Formatting.GRAY);
+            .formatted(ChatUtils.bgColor);
         if (!calculated.isEmpty()) {
             headline.append(
                 Text.literal(" Calculated: " + calculated.size())
@@ -109,7 +128,16 @@ public class ChatUtils {
                 result.z(),
                 result.angle()
             );
-            calculated_text.append(String.format("%" + maxLength + "s", name))
+            calculated_text
+                .append(
+                    Text.literal(name.name())
+                    .styled(
+                        style -> style
+                            .withColor(name.color())
+                            .withHoverEvent(new HoverEvent.ShowText(Text.literal("UUID:" + name.uuid())))
+                            .withClickEvent(new ClickEvent.CopyToClipboard(name.uuid().toString()))
+                    )
+                )
                 .append(": ")
                 .append(formattedPlayerCoordinates);
             first = false;
@@ -118,10 +146,12 @@ public class ChatUtils {
         for (String name : missed) {
             if (!first) missed_text.append("\n");
             missed_text.append(
-                Text.literal(String.format("%" + maxLength + "s", name))
-                    .formatted(
-                        Formatting.RED,
-                        Formatting.ITALIC
+                Text.literal(name.name())
+                    .styled(
+                        style -> style
+                            .withFormatting(Formatting.RED, Formatting.ITALIC)
+                            .withHoverEvent(new HoverEvent.ShowText(Text.literal("UUID:" + name.uuid())))
+                            .withClickEvent(new ClickEvent.CopyToClipboard(name.uuid().toString()))
                     )
             );
             first = false;
@@ -142,19 +172,12 @@ public class ChatUtils {
     }
 
     public static Text formatLocatorPosition(LocatorInfo pos) {
-        if (pos == null)
+        if (pos == null) {
             return Text.literal("No locator data available").formatted(Formatting.RED);
+        }
 
         MutableText text = Text.empty();
-        Text headline = Text.literal(
-            String.format(
-                "(%.0f, %.0f) yaw=%.1f°",
-                pos.self().x(),
-                pos.self().z(),
-                pos.self().yaw()
-            )
-        ).formatted(Formatting.GRAY);
-        text.append(headline).append("\n");
+        text.append(ChatUtils.formatPosition(pos.self().x(), pos.self().z(), pos.self().yaw())).append("\n");
 
         if (!pos.targets().keySet().isEmpty()) {
             for (UUID key : pos.targets().keySet()) {
@@ -162,11 +185,20 @@ public class ChatUtils {
                 if (target == null) {
                     continue;
                 }
-                text.append(Text.literal(target.name()).formatted(Formatting.GRAY))
-                    .append(Text.literal(" yaw=").formatted(Formatting.GRAY))
-                    .append(Text.literal(String.format("%.1f°", target.yaw())).formatted(Formatting.YELLOW))
-                    .append(Text.literal(" dist=").formatted(Formatting.GRAY))
-                    .append(Text.literal(String.format("%.0f", target.distance())).formatted(Formatting.YELLOW))
+                text.append(
+                    Text.literal(target.name())
+                        .styled(
+                        style -> style
+                            .withColor(target.color())
+                            .withHoverEvent(new HoverEvent.ShowText(Text.literal("UUID:" + target.uuid())))
+                        )
+                    )
+                    .append(Text.literal(" yaw").formatted(ChatUtils.bgColor))
+                    .append(Text.literal("=").formatted(ChatUtils.accentBgColor))
+                    .append(Text.literal(String.format("%.1f°", target.yaw())).formatted(ChatUtils.accentColor))
+                    .append(Text.literal(" dist").formatted(ChatUtils.bgColor))
+                    .append(Text.literal("=").formatted(ChatUtils.accentBgColor))
+                    .append(Text.literal(String.format("%.0f", target.distance())).formatted(ChatUtils.accentColor))
                     .append("\n");
             }
         } else {
@@ -179,14 +211,7 @@ public class ChatUtils {
         if (pos == null)
             return Text.literal("No data available").formatted(Formatting.RED);
 
-        return Text.literal(
-            String.format(
-                "(%.0f, %.0f) yaw=%.1f°",
-                pos.x(),
-                pos.z(),
-                pos.yaw()
-            )
-        ).formatted(Formatting.GRAY);
+        return ChatUtils.formatPosition(pos.x(), pos.z(), pos.yaw());
     }
 
     public static void sendLocatorPositions(LocatorInfo... positions) {

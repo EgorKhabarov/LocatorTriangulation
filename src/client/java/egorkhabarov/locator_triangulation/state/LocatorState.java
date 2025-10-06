@@ -1,5 +1,7 @@
 package egorkhabarov.locator_triangulation.state;
 
+import egorkhabarov.locator_triangulation.data_providers.Name;
+
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.Map;
@@ -20,11 +22,11 @@ public class LocatorState {
      * A dictionary of names that can be calculated
      * @return .
      */
-    public static Map<String, UUID> getNamesMap() {
+    public static Map<String, Name> getNamesMap() {
         if (pos1 == null || pos2 == null) {
             return new HashMap<>();
         }
-        Map<String, UUID> names = new HashMap<>();
+        Map<String, Name> names = new HashMap<>();
 
         for (UUID uuid : pos1.targets().keySet()) {
             TargetInfo target1 = pos1.targets().get(uuid);
@@ -39,7 +41,7 @@ public class LocatorState {
                 }
 
                 if (target1.uuid().equals(target2.uuid())) {
-                    names.put(target1.name(), target1.uuid());
+                    names.put(target1.name(), new Name(target1.uuid(), target1.name(), target1.color()));
                 }
             }
         }

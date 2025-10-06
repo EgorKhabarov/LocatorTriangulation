@@ -1,6 +1,7 @@
 package egorkhabarov.locator_triangulation.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import egorkhabarov.locator_triangulation.data_providers.Name;
 import egorkhabarov.locator_triangulation.state.*;
 import egorkhabarov.locator_triangulation.util.ChatUtils;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -116,12 +117,12 @@ public class LocatorDataCommand {
                                 return 1;
                             }
                             String target_name = StringArgumentType.getString(context, "player");
-                            UUID uuid = LocatorState.getNamesMap().get(target_name);
-                            if (uuid == null) {
+                            Name name = LocatorState.getNamesMap().get(target_name);
+                            if (name == null) {
                                 ChatUtils.sendErrorMessage(String.format("Player \"%s\" not found in saved snapshots", target_name));
                                 return 1;
                             }
-                            LocatorDataCommand.handleLocateSingle(uuid, target_name);
+                            LocatorDataCommand.handleLocateSingle(name);
                             return 1;
                         })
                     )
@@ -171,25 +172,24 @@ public class LocatorDataCommand {
         );
     }
 
-    private static void handleLocateSingle(UUID uuid, String target_name) {
-        Optional<Triangulation.Result> result = LocatorDataCommand.getResultSingle(uuid);
+    private static void handleLocateSingle(Name name) {
+        Optional<Triangulation.Result> result = LocatorDataCommand.getResultSingle(name.uuid());
         if (result.isEmpty()) {
             ChatUtils.sendErrorMessage("Something went wrong");
             return;
         }
-        ChatUtils.sendLocatorResult(target_name, result.get());
+        ChatUtils.sendLocatorResult(name, result.get());
     }
 
     private static void handleLocateAll() {
-        Map<String, UUID> names = LocatorState.getNamesMap();
+        Map<String, Name> names = LocatorState.getNamesMap();
 
-        Map<String, Triangulation.Result> calculated = new HashMap<>();
-        Set<String> missed = new HashSet<>();
+        Map<Name, Triangulation.Result> calculated = new HashMap<>();
+        Set<Name> missed = new HashSet<>();
         int found = 0;
 
-        for (String name : names.keySet()) {
-            UUID uuid = names.get(name);
-            Optional<Triangulation.Result> result = LocatorDataCommand.getResultSingle(uuid);
+        for (Name name : names.values()) {
+            Optional<Triangulation.Result> result = LocatorDataCommand.getResultSingle(name.uuid());
 
             if (result.isEmpty()) {
                 missed.add(name);
