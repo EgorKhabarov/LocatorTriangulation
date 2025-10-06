@@ -120,8 +120,10 @@ public class ChatUtils {
 
         MutableText calculated_text = Text.empty();
         boolean first = true;
-        for (String name : calculated.keySet()) {
-            if (!first) calculated_text.append("\n");
+        for (Name name : SortUtils.sortByName(calculated.keySet(), Name::name)) {
+            if (!first) {
+                calculated_text.append("\n");
+            }
             Triangulation.Result result = calculated.get(name);
             Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(
                 result.x(),
@@ -143,8 +145,10 @@ public class ChatUtils {
             first = false;
         }
         MutableText missed_text = Text.empty();
-        for (String name : missed) {
-            if (!first) missed_text.append("\n");
+        for (Name name : SortUtils.sortByName(missed, Name::name)) {
+            if (!first) {
+                missed_text.append("\n");
+            }
             missed_text.append(
                 Text.literal(name.name())
                     .styled(
@@ -179,9 +183,8 @@ public class ChatUtils {
         MutableText text = Text.empty();
         text.append(ChatUtils.formatPosition(pos.self().x(), pos.self().z(), pos.self().yaw())).append("\n");
 
-        if (!pos.targets().keySet().isEmpty()) {
-            for (UUID key : pos.targets().keySet()) {
-                TargetInfo target = pos.targets().get(key);
+        if (!pos.targets().isEmpty()) {
+            for (TargetInfo target : SortUtils.sortByName(pos.targets().values(), TargetInfo::name)) {
                 if (target == null) {
                     continue;
                 }
