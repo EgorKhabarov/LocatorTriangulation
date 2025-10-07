@@ -4,10 +4,17 @@
 <a target="_blank" href="https://github.com/EgorKhabarov/LocatorTriangulation">
     <img src="https://raw.githubusercontent.com/EgorKhabarov/EgorKhabarov.github.io/refs/heads/master/resources/badges/GitHub.svg" alt="GitHub">
 </a>&nbsp;
--->
 <a target="_blank" href="https://github.com/EgorKhabarov/LocatorTriangulation/actions/workflows/build.yml">
   <img src="https://github.com/EgorKhabarov/LocatorTriangulation/actions/workflows/build.yml/badge.svg" alt="build">
 </a>
+![Modrinth Followers](https://img.shields.io/modrinth/followers/locator-triangulation)
+![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/locator-triangulation)
+-->
+
+[![build](https://github.com/EgorKhabarov/LocatorTriangulation/actions/workflows/build.yml/badge.svg)](https://github.com/EgorKhabarov/LocatorTriangulation/actions/workflows/build.yml)
+![Modrinth Downloads](https://img.shields.io/modrinth/dt/locator-triangulation)
+
+
 
 A client-side Fabric mod that allows determining players' coordinates using triangulation.
 
@@ -78,6 +85,8 @@ For maximum accuracy, take positions so that the target is roughly at a right an
 
 The corner color in the message indicates the calculation quality.
 Green means near-perfect accuracy, yellow is acceptable but may include a small error, and red indicates poor accuracy.
+
+![colored_locate](images/colored_locate.png)
 
 ### How to hide from the locator
 
