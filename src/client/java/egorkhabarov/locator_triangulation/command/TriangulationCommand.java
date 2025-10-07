@@ -76,18 +76,23 @@ public class TriangulationCommand {
             dispatcher.register(ClientCommandManager.literal("triangulation_locate")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
-                    if (client.player == null) return 1;
+                    if (client.player == null) {
+                        return 1;
+                    }
 
                     PlayerInfo pos1 = TriangulationState.getPos1();
                     PlayerInfo pos2 = TriangulationState.getPos2();
 
                     if (pos1 == null || pos2 == null) {
                         ChatUtils.sendErrorMessage("Need both pos1 and pos2");
+                        return 1;
                     }
 
                     Optional<Triangulation.Result> result = Triangulation.triangulate(pos1, pos2);
 
-                    if (result.isEmpty()) return 1;
+                    if (result.isEmpty()) {
+                        return 1;
+                    }
 
                     ChatUtils.sendTriangulationResult(result.get());
                     return 1;

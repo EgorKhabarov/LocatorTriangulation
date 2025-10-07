@@ -108,7 +108,9 @@ public class LocatorDataCommand {
                         })
                         .executes(context -> {
                             MinecraftClient client = MinecraftClient.getInstance();
-                            if (client.player == null) return 1;
+                            if (client.player == null) {
+                                return 1;
+                            }
                             if (
                                 LocatorState.getPos1() == null
                                 && LocatorState.getPos2() == null
@@ -131,7 +133,9 @@ public class LocatorDataCommand {
             dispatcher.register(ClientCommandManager.literal("locator_locate_all")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
-                    if (client.player == null) return 1;
+                    if (client.player == null) {
+                        return 1;
+                    }
                     if (
                         LocatorState.getPos1() == null
                         && LocatorState.getPos2() == null

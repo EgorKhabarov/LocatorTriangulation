@@ -8,7 +8,9 @@ public class Triangulation {
     public record Result(double x, double z, double error, double angle) {}
 
     public static Optional<Result> triangulate(PlayerInfo pos1, PlayerInfo pos2) {
-        if (pos1 == null || pos2 == null) return Optional.empty();
+        if (pos1 == null || pos2 == null) {
+            return Optional.empty();
+        }
 
         double x1 = pos1.x(), z1 = pos1.z();
         double x2 = pos2.x(), z2 = pos2.z();

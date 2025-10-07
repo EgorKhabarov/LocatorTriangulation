@@ -20,7 +20,9 @@ public class LocatorDataProvider {
 
         ClientPlayerEntity player = client.player;
         ClientPlayNetworkHandler networkHandler = player.networkHandler;
-        if (networkHandler == null || networkHandler.getWaypointHandler() == null) return null;
+        if (networkHandler == null || networkHandler.getWaypointHandler() == null) {
+            return null;
+        }
 
         Map<UUID, TargetInfo> targets = new HashMap<>();
 

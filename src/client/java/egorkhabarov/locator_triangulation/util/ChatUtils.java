@@ -35,7 +35,9 @@ public class ChatUtils {
 
     public static void sendModMessage(Object... parts) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null) return;
+        if (client.player == null) {
+            return;
+        }
         MutableText result = ChatUtils.prefix.copy();
 
         for (Object part : parts) {
@@ -178,7 +180,6 @@ public class ChatUtils {
         if (pos == null) {
             return Text.literal("No locator data available").formatted(Formatting.RED);
         }
-
         MutableText text = Text.empty();
         text.append(ChatUtils.formatPosition(pos.self().x(), pos.self().z(), pos.self().yaw())).append("\n");
 
@@ -210,9 +211,9 @@ public class ChatUtils {
     }
 
     public static Text formatTriangulationPosition(PlayerInfo pos) {
-        if (pos == null)
+        if (pos == null) {
             return Text.literal("No data available").formatted(Formatting.RED);
-
+        }
         return ChatUtils.formatPosition(pos.x(), pos.z(), pos.yaw());
     }
 
