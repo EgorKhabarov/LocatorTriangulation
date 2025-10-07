@@ -29,8 +29,7 @@ public class ChatUtils {
         text.append(Text.literal(String.format("%.0f", z)).formatted(ChatUtils.accentColor));
         text.append(Text.literal(") yaw").formatted(ChatUtils.bgColor));
         text.append(Text.literal("=").formatted(ChatUtils.accentBgColor));
-        text.append(Text.literal(String.format("%.1f", yaw)).formatted(ChatUtils.accentColor));
-        text.append(Text.literal(String.format("%.1f", yaw)).formatted(ChatUtils.bgColor));
+        text.append(Text.literal(String.format("%.1f°", yaw)).formatted(ChatUtils.accentColor));
         return text;
     }
 
