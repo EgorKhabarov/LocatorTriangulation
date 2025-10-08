@@ -92,7 +92,7 @@ public class LocatorDataCommand {
                             Set<String> names = new HashSet<>(LocatorState.getNamesMap().keySet());
                             if (client.world != null) {
                                 for (PlayerEntity p : client.world.getPlayers()) {
-                                    names.add(p.getGameProfile().getName());
+                                    names.add(p.getGameProfile().name());
                                 }
                             }
                             if (client.player != null) {

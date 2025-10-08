@@ -7,14 +7,19 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.ColorHelper;
+import net.minecraft.world.World;
+import net.minecraft.world.tick.TickManager;
+import net.minecraft.world.waypoint.EntityTickProgress;
 import net.minecraft.world.waypoint.TrackedWaypoint;
+import net.minecraft.client.render.RenderTickCounter;
 
 import java.util.*;
 
 public class LocatorDataProvider {
     public static LocatorInfo getLocatorInfo(MinecraftClient client) {
-        if (client == null || client.player == null || client.world == null || client.cameraEntity == null) {
+        if (client == null || client.player == null || client.world == null || client.getCameraEntity() == null) {
             return null;
         }
 
@@ -25,21 +30,28 @@ public class LocatorDataProvider {
         }
 
         Map<UUID, TargetInfo> targets = new HashMap<>();
+        Entity entity = client.getCameraEntity();
+        World world = entity.getEntityWorld();
+        TickManager tickManager = world.getTickManager();
+        RenderTickCounter tickCounter = client.getRenderTickCounter();
+        EntityTickProgress entityTickProgress = (Entity entityx) -> tickCounter.getTickProgress(!tickManager.shouldSkipTick(entityx));
 
-        networkHandler.getWaypointHandler().forEachWaypoint(client.cameraEntity, (TrackedWaypoint waypoint) -> {
+        networkHandler.getWaypointHandler().forEachWaypoint(entity, (TrackedWaypoint waypoint) -> {
             try {
-                double relativeYaw = waypoint.getRelativeYaw(client.world, client.gameRenderer.getCamera());
-                float playerYaw = client.cameraEntity.getYaw();
+                double relativeYaw = waypoint.getRelativeYaw(world, client.gameRenderer.getCamera(), entityTickProgress);
+
+
+                float playerYaw = client.getCameraEntity().getYaw();
                 double absYaw = (relativeYaw + playerYaw + 360.0) % 360.0;
                 double mcYaw = ((absYaw + 540.0) % 360.0) - 180.0; // [-180,180)
 
-                double distance = Math.sqrt(waypoint.squaredDistanceTo(client.cameraEntity));
+                double distance = Math.sqrt(waypoint.squaredDistanceTo(entity));
 
                 String displayName = waypoint.getSource().map(
                     uuid -> {
                         PlayerListEntry ple = networkHandler.getPlayerListEntry(uuid);
                         if (ple != null && ple.getProfile() != null) {
-                            return ple.getProfile().getName();
+                            return ple.getProfile().name();
                         }
                         return "UUID-" + uuid.toString().substring(0, 8);
                     },

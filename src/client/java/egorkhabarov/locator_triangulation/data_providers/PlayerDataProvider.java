@@ -6,7 +6,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 
 public class PlayerDataProvider {
     public static PlayerInfo getPlayerInfo(MinecraftClient client) {
-        if (client == null || client.player == null || client.world == null || client.cameraEntity == null) {
+        if (client == null || client.player == null || client.world == null || client.getCameraEntity() == null) {
             return null;
         }
         ClientPlayerEntity player = client.player;
