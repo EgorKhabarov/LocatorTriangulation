@@ -22,7 +22,7 @@ public class LocatorState {
      * A dictionary of names that can be calculated
      * @return .
      */
-    public static Map<String, Name> getNamesMap() {
+    public static Map<String, Name> getComputableNamesMap() {
         if (pos1 == null || pos2 == null) {
             return new HashMap<>();
         }
@@ -44,6 +44,24 @@ public class LocatorState {
                     names.put(target1.name(), new Name(target1.uuid(), target1.name(), target1.color()));
                 }
             }
+        }
+        return names;
+    }
+
+    public static Map<String, Name> getAllNamesMap() {
+        if (pos1 == null || pos2 == null) {
+            return new HashMap<>();
+        }
+        Map<String, Name> names = new HashMap<>();
+
+        for (UUID uuid : pos1.targets().keySet()) {
+            TargetInfo target = pos1.targets().get(uuid);
+            names.put(target.name(), new Name(target.uuid(), target.name(), target.color()));
+        }
+
+        for (UUID uuid : pos2.targets().keySet()) {
+            TargetInfo target = pos2.targets().get(uuid);
+            names.put(target.name(), new Name(target.uuid(), target.name(), target.color()));
         }
         return names;
     }

@@ -89,7 +89,7 @@ public class LocatorDataCommand {
                     .then(ClientCommandManager.argument("player", StringArgumentType.word())
                         .suggests((context, builder) -> {
                             MinecraftClient client = MinecraftClient.getInstance();
-                            Set<String> names = new HashSet<>(LocatorState.getNamesMap().keySet());
+                            Set<String> names = new HashSet<>(LocatorState.getComputableNamesMap().keySet());
                             if (client.world != null) {
                                 for (PlayerEntity p : client.world.getPlayers()) {
                                     names.add(p.getGameProfile().name());
@@ -119,7 +119,7 @@ public class LocatorDataCommand {
                                 return 1;
                             }
                             String target_name = StringArgumentType.getString(context, "player");
-                            Name name = LocatorState.getNamesMap().get(target_name);
+                            Name name = LocatorState.getComputableNamesMap().get(target_name);
                             if (name == null) {
                                 ChatUtils.sendErrorMessage(String.format("Player \"%s\" not found in saved snapshots", target_name));
                                 return 1;
@@ -186,7 +186,7 @@ public class LocatorDataCommand {
     }
 
     private static void handleLocateAll() {
-        Map<String, Name> names = LocatorState.getNamesMap();
+        Map<String, Name> names = LocatorState.getAllNamesMap();
 
         Map<Name, Triangulation.Result> calculated = new HashMap<>();
         Set<Name> missed = new HashSet<>();
