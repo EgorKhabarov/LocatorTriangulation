@@ -1,0 +1,23 @@
+{
+    "homepage": "https://github.com/EgorKhabarov/LocatorTriangulation",
+    "promos": {
+        "1.0.0": "release",
+        "1.1.0": "release"
+    },
+    "versions": {
+        "1.0.0": {
+            "name": "1.0.0",
+            "changelog": "https://github.com/EgorKhabarov/LocatorTriangulation/releases/tag/1.0.0",
+            "downloads": {
+                "jar": "https://github.com/EgorKhabarov/LocatorTriangulation/releases/download/1.0.0/LocatorTriangulation-fabric-1.21.8-1.0.0.jar"
+            }
+        },
+        "1.1.0": {
+            "name": "1.1.0",
+            "changelog": "https://github.com/EgorKhabarov/LocatorTriangulation/releases/tag/1.1.0",
+            "downloads": {
+                "jar": "https://github.com/EgorKhabarov/LocatorTriangulation/releases/download/1.1.0/LocatorTriangulation-fabric-1.21.8-1.1.0.jar"
+            }
+        }
+    }
+}

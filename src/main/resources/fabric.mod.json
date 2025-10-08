@@ -1,32 +1,45 @@
 {
-	"schemaVersion": 1,
-	"id": "locator_triangulation",
-	"version": "${version}",
-	"name": "Locator Triangulation",
-	"description": "Calculating players coordinates using triangulation",
-	"authors": [
-		"EgorKhabarov"
-	],
-	"contact": {
+    "schemaVersion": 1,
+    "id": "locator_triangulation",
+    "version": "${version}",
+    "name": "Locator Triangulation",
+    "description": "Calculating players coordinates using triangulation",
+    "authors": [
+        "EgorKhabarov"
+    ],
+    "contact": {
         "homepage": "https://github.com/EgorKhabarov/LocatorTriangulation",
         "issues": "https://github.com/EgorKhabarov/LocatorTriangulation/issues",
-		"sources": "https://github.com/EgorKhabarov/LocatorTriangulation"
-	},
-	"license": "MIT",
-	"icon": "assets/locator_triangulation/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"client": [
-			"egorkhabarov.locator_triangulation.LocatorTriangulationClient"
-		]
-	},
-	"depends": {
-		"fabricloader": ">=0.16.14",
-		"minecraft": "~1.21.8",
-		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+        "sources": "https://github.com/EgorKhabarov/LocatorTriangulation"
+    },
+    "license": "MIT",
+    "icon": "assets/locator_triangulation/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "client": [
+            "egorkhabarov.locator_triangulation.LocatorTriangulationClient"
+        ]
+    },
+    "depends": {
+        "fabricloader": ">=0.16.14",
+        "minecraft": "~1.21.8",
+        "java": ">=21",
+        "fabric-api": "*"
+    },
+    "suggests": {
+
+    },
+    "custom": {
+        "modmenu:api": true,
+        "update": {
+            "version": "${version}",
+            "update_url": "https://raw.githubusercontent.com/EgorKhabarov/LocatorTriangulation/refs/heads/1.21/update.json"
+        },
+        "modmenu": {
+            "links": {
+                "modmenu.github_releases": "https://github.com/EgorKhabarov/LocatorTriangulation/releases",
+                "modmenu.modrinth": "https://modrinth.com/mod/locator-triangulation"
+            }
+        }
+    }
 }
