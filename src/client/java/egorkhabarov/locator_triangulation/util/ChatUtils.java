@@ -1,9 +1,10 @@
 package egorkhabarov.locator_triangulation.util;
 
-import egorkhabarov.locator_triangulation.data_providers.Name;
-import egorkhabarov.locator_triangulation.state.LocatorInfo;
-import egorkhabarov.locator_triangulation.state.PlayerInfo;
-import egorkhabarov.locator_triangulation.state.TargetInfo;
+import egorkhabarov.locator_triangulation.logic.Triangulation;
+import egorkhabarov.locator_triangulation.model.Name;
+import egorkhabarov.locator_triangulation.model.LocatorInfo;
+import egorkhabarov.locator_triangulation.model.PlayerInfo;
+import egorkhabarov.locator_triangulation.model.TargetInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;

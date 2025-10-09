@@ -1,4 +1,4 @@
-package egorkhabarov.locator_triangulation.state;
+package egorkhabarov.locator_triangulation.model;
 
 /**
  * @param yaw Absolute yaw [-180,180)

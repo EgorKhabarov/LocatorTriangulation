@@ -1,6 +1,6 @@
-package egorkhabarov.locator_triangulation.util;
+package egorkhabarov.locator_triangulation.logic;
 
-import egorkhabarov.locator_triangulation.state.PlayerInfo;
+import egorkhabarov.locator_triangulation.model.PlayerInfo;
 
 import java.util.Optional;
 

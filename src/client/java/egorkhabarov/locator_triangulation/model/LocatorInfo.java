@@ -1,4 +1,4 @@
-package egorkhabarov.locator_triangulation.state;
+package egorkhabarov.locator_triangulation.model;
 
 import java.util.Map;
 import java.util.UUID;

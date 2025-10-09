@@ -1,8 +1,8 @@
 package egorkhabarov.locator_triangulation.data_providers;
 
-import egorkhabarov.locator_triangulation.state.LocatorInfo;
-import egorkhabarov.locator_triangulation.state.TargetInfo;
-import egorkhabarov.locator_triangulation.state.PlayerInfo;
+import egorkhabarov.locator_triangulation.model.LocatorInfo;
+import egorkhabarov.locator_triangulation.model.TargetInfo;
+import egorkhabarov.locator_triangulation.model.PlayerInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;

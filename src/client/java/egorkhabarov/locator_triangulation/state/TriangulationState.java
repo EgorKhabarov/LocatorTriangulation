@@ -1,5 +1,7 @@
 package egorkhabarov.locator_triangulation.state;
 
+import egorkhabarov.locator_triangulation.model.PlayerInfo;
+
 public class TriangulationState {
     private static PlayerInfo pos1;
     private static PlayerInfo pos2;
