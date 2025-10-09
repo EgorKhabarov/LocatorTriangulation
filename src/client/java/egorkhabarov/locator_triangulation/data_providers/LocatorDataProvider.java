@@ -40,7 +40,6 @@ public class LocatorDataProvider {
             try {
                 double relativeYaw = waypoint.getRelativeYaw(world, client.gameRenderer.getCamera(), entityTickProgress);
 
-
                 float playerYaw = client.getCameraEntity().getYaw();
                 double absYaw = (relativeYaw + playerYaw + 360.0) % 360.0;
                 double mcYaw = ((absYaw + 540.0) % 360.0) - 180.0; // [-180,180)
