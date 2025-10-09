@@ -1,10 +1,10 @@
 package egorkhabarov.locator_triangulation.command;
 
 import egorkhabarov.locator_triangulation.data_providers.PlayerDataProvider;
-import egorkhabarov.locator_triangulation.state.PlayerInfo;
+import egorkhabarov.locator_triangulation.model.PlayerInfo;
 import egorkhabarov.locator_triangulation.state.TriangulationState;
 import egorkhabarov.locator_triangulation.util.ChatUtils;
-import egorkhabarov.locator_triangulation.util.Triangulation;
+import egorkhabarov.locator_triangulation.logic.Triangulation;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;

@@ -1,7 +1,10 @@
 package egorkhabarov.locator_triangulation.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
-import egorkhabarov.locator_triangulation.data_providers.Name;
+import egorkhabarov.locator_triangulation.model.Name;
+import egorkhabarov.locator_triangulation.model.LocatorInfo;
+import egorkhabarov.locator_triangulation.model.PlayerInfo;
+import egorkhabarov.locator_triangulation.model.TargetInfo;
 import egorkhabarov.locator_triangulation.state.*;
 import egorkhabarov.locator_triangulation.util.ChatUtils;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -9,7 +12,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import egorkhabarov.locator_triangulation.data_providers.LocatorDataProvider;
-import egorkhabarov.locator_triangulation.util.Triangulation;
+import egorkhabarov.locator_triangulation.logic.Triangulation;
 
 import java.util.*;
 

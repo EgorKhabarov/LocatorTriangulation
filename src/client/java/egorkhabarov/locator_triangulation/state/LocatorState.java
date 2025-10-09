@@ -1,6 +1,8 @@
 package egorkhabarov.locator_triangulation.state;
 
-import egorkhabarov.locator_triangulation.data_providers.Name;
+import egorkhabarov.locator_triangulation.model.Name;
+import egorkhabarov.locator_triangulation.model.LocatorInfo;
+import egorkhabarov.locator_triangulation.model.TargetInfo;
 
 import java.util.HashMap;
 import java.util.UUID;

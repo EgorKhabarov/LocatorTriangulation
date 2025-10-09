@@ -1,4 +1,4 @@
-package egorkhabarov.locator_triangulation.data_providers;
+package egorkhabarov.locator_triangulation.model;
 
 import java.util.UUID;
 
