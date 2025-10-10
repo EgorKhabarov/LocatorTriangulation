@@ -14,7 +14,7 @@
     },
     "license": "MIT",
     "icon": "assets/locator_triangulation/icon.png",
-    "environment": "*",
+    "environment": "client",
     "entrypoints": {
         "client": [
             "egorkhabarov.locator_triangulation.LocatorTriangulationClient"
@@ -30,11 +30,6 @@
 
     },
     "custom": {
-        "modmenu:api": true,
-        "update": {
-            "version": "${version}",
-            "update_url": "https://raw.githubusercontent.com/EgorKhabarov/LocatorTriangulation/refs/heads/1.21/update.json"
-        },
         "modmenu": {
             "links": {
                 "modmenu.github_releases": "https://github.com/EgorKhabarov/LocatorTriangulation/releases",
