@@ -1,6 +1,7 @@
 package egorkhabarov.locator_triangulation.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import egorkhabarov.locator_triangulation.keybinds.Keybinds;
 import egorkhabarov.locator_triangulation.model.Name;
 import egorkhabarov.locator_triangulation.model.LocatorInfo;
 import egorkhabarov.locator_triangulation.model.PlayerInfo;
@@ -35,6 +36,7 @@ public class LocatorDataCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos1");
                     } else {
                         LocatorState.setPos1(info);
+                        Keybinds.last_first_position = true;
                         ChatUtils.sendConfirmationMessage("Locator pos1 saved");
                     }
                     return 1;
@@ -49,6 +51,7 @@ public class LocatorDataCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos2");
                     } else {
                         LocatorState.setPos2(info);
+                        Keybinds.last_first_position = false;
                         ChatUtils.sendConfirmationMessage("Locator pos2 saved");
                     }
                     return 1;
