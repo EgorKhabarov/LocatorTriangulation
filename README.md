@@ -74,6 +74,18 @@ For regular triangulation use the same commands but with the `triangulation` pre
 - `/triangulation_clear_poses` - clear both positions
 - `/triangulation_locate` — compute the intersection coordinates of the view directions (if both positions are saved)
 
+### Keybinds
+
+Keybinds have been added for both locator and triangulation for convenience.
+The purpose is to simplify the process of setting points and calculating results.
+
+**How it works:**
+- The first press of the selected key will set the first point.
+- Pressing the key with **Shift** will skip setting the second point.
+- Pressing the key again will reset the first point.
+- Pressing it again will set the second point.
+- If both points are already set, pressing the key with **Ctrl** will return the calculated result for those two points.
+
 ### Accuracy notes
 
 Triangulation accuracy strongly depends on the angle between view directions from the two positions.
