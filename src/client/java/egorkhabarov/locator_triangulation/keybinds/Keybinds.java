@@ -12,19 +12,21 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class Keybinds {
     public static KeyBinding setPosKey;
     private static boolean wasPressed = false;
     public static boolean last_first_position = false;
+    private static final KeyBinding.Category LOCATOR_TRIANGULATION_CATEGORY = KeyBinding.Category.create(Identifier.of("locator_triangulation", "category_name"));
 
     public static void register() {
         Keybinds.setPosKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.locator_triangulation.set_pos",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_UNKNOWN,
-            "category.locator_triangulation"
+            LOCATOR_TRIANGULATION_CATEGORY
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register((MinecraftClient client) -> {
