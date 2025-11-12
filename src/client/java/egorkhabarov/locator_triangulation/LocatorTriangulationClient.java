@@ -2,6 +2,7 @@ package egorkhabarov.locator_triangulation;
 
 import egorkhabarov.locator_triangulation.command.LocatorDataCommand;
 import egorkhabarov.locator_triangulation.command.TriangulationCommand;
+import egorkhabarov.locator_triangulation.keybinds.Keybinds;
 import egorkhabarov.locator_triangulation.state.LocatorState;
 import egorkhabarov.locator_triangulation.state.TriangulationState;
 import net.fabricmc.api.ClientModInitializer;
@@ -17,6 +18,7 @@ public class LocatorTriangulationClient implements ClientModInitializer {
     public void onInitializeClient() {
         LocatorDataCommand.register();
         TriangulationCommand.register();
+        Keybinds.register();
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             LocatorState.clearAll();
             TriangulationState.clearAll();
