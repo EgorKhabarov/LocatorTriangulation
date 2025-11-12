@@ -182,7 +182,7 @@ public class LocatorDataCommand {
         );
     }
 
-    private static void handleLocateSingle(Name name) {
+    public static void handleLocateSingle(Name name) {
         Optional<Triangulation.Result> result = LocatorDataCommand.getResultSingle(name.uuid());
         if (result.isEmpty()) {
             ChatUtils.sendErrorMessage("Something went wrong");
@@ -191,7 +191,7 @@ public class LocatorDataCommand {
         ChatUtils.sendLocatorResult(name, result.get());
     }
 
-    private static void handleLocateAll() {
+    public static void handleLocateAll() {
         Map<String, Name> names = LocatorState.getAllNamesMap();
 
         Map<Name, Triangulation.Result> calculated = new HashMap<>();

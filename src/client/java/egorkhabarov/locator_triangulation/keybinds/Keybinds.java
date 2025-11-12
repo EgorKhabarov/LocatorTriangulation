@@ -1,5 +1,6 @@
 package egorkhabarov.locator_triangulation.keybinds;
 
+import egorkhabarov.locator_triangulation.command.LocatorDataCommand;
 import egorkhabarov.locator_triangulation.data_providers.LocatorDataProvider;
 import egorkhabarov.locator_triangulation.model.LocatorInfo;
 import egorkhabarov.locator_triangulation.state.LocatorState;
@@ -9,6 +10,8 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.lwjgl.glfw.GLFW;
 
 public class Keybinds {
@@ -36,9 +39,15 @@ public class Keybinds {
                     GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS
                     || GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS
                 );
+                boolean ctrlDown = (
+                    GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
+                    || GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS
+                );
 
-                if (shiftDown) {
-                    Keybinds.onShiftRelease();
+                if (ctrlDown) {
+                    Keybinds.onCtrlRelease(client);
+                } else if (shiftDown) {
+                    Keybinds.onShiftRelease(client);
                 } else {
                     Keybinds.onRelease(client);
                 }
@@ -52,20 +61,34 @@ public class Keybinds {
         LocatorInfo info = LocatorDataProvider.getLocatorInfo(client);
         if (info == null) {
             ChatUtils.sendErrorMessage("Failed to capture pos");
-        } else {
-            if (Keybinds.last_first_position) {
-                LocatorState.setPos2(info);
-                ChatUtils.sendConfirmationMessage("Locator pos2 saved");
-            } else {
-                LocatorState.setPos1(info);
-                ChatUtils.sendConfirmationMessage("Locator pos1 saved");
-            }
-            Keybinds.last_first_position = !Keybinds.last_first_position;
+            return;
         }
+        if (Keybinds.last_first_position) {
+            LocatorState.setPos2(info);
+            ChatUtils.sendConfirmationMessage("Locator pos2 saved");
+        } else {
+            LocatorState.setPos1(info);
+            ChatUtils.sendConfirmationMessage("Locator pos1 saved");
+        }
+        Keybinds.last_first_position = !Keybinds.last_first_position;
     }
 
-    private static void onShiftRelease() {
-        ChatUtils.sendConfirmationMessage("Skipped saving locator position " + (Keybinds.last_first_position?2:1));
+    private static void onCtrlRelease(MinecraftClient client) {
+        if (
+            LocatorState.getPos1() == null
+            || LocatorState.getPos2() == null
+        ) {
+            ChatUtils.sendModMessage(
+                Text.literal("To get the result, both positions are needed")
+                    .formatted(Formatting.ITALIC)
+            );
+            return;
+        }
+        LocatorDataCommand.handleLocateAll();
+    }
+
+    private static void onShiftRelease(MinecraftClient client) {
         Keybinds.last_first_position = !Keybinds.last_first_position;
+        ChatUtils.sendConfirmationMessage("Skipped saving locator position " + (Keybinds.last_first_position?2:1));
     }
 }
