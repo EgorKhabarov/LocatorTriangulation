@@ -90,7 +90,7 @@ public class Keybinds {
     }
 
     private static void onShiftRelease(MinecraftClient client) {
-        Keybinds.last_first_position = !Keybinds.last_first_position;
         ChatUtils.sendConfirmationMessage("Skipped saving locator position " + (Keybinds.last_first_position?2:1));
+        Keybinds.last_first_position = !Keybinds.last_first_position;
     }
 }
