@@ -76,7 +76,7 @@ For regular triangulation use the same commands but with the `triangulation` pre
 
 ### Keybinds
 
-Keybinds have been added for both locator and triangulation for convenience.
+For convenience, keybinds have been added for locator and triangulation.
 The purpose is to simplify the process of setting points and calculating results.
 
 **How it works:**
