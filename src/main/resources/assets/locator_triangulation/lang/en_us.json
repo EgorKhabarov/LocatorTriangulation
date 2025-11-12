@@ -1,4 +1,5 @@
 {
     "key.category.locator_triangulation.category_name": "Locator Triangulation",
-    "key.locator_triangulation.set_pos": "Save Locator Position"
+    "key.locator_triangulation.set_locator_pos": "Save Locator Position",
+    "key.locator_triangulation.set_triangulation_pos": "Save Triangulation Position"
 }

@@ -36,7 +36,7 @@ public class LocatorDataCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos1");
                     } else {
                         LocatorState.setPos1(info);
-                        Keybinds.last_first_position = true;
+                        Keybinds.last_first_locator_position = true;
                         ChatUtils.sendConfirmationMessage("Locator pos1 saved");
                     }
                     return 1;
@@ -51,7 +51,7 @@ public class LocatorDataCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos2");
                     } else {
                         LocatorState.setPos2(info);
-                        Keybinds.last_first_position = false;
+                        Keybinds.last_first_locator_position = false;
                         ChatUtils.sendConfirmationMessage("Locator pos2 saved");
                     }
                     return 1;
