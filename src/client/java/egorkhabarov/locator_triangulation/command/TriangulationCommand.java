@@ -1,6 +1,7 @@
 package egorkhabarov.locator_triangulation.command;
 
 import egorkhabarov.locator_triangulation.data_providers.PlayerDataProvider;
+import egorkhabarov.locator_triangulation.keybinds.Keybinds;
 import egorkhabarov.locator_triangulation.model.PlayerInfo;
 import egorkhabarov.locator_triangulation.state.TriangulationState;
 import egorkhabarov.locator_triangulation.util.ChatUtils;
@@ -22,6 +23,7 @@ public class TriangulationCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos1");
                     } else {
                         TriangulationState.setPos1(playerInfo);
+                        Keybinds.last_first_triangulation_position = true;
                         ChatUtils.sendConfirmationMessage("Triangulation pos1 saved");
                     }
                     return 1;
@@ -36,6 +38,7 @@ public class TriangulationCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos2");
                     } else {
                         TriangulationState.setPos2(playerInfo);
+                        Keybinds.last_first_triangulation_position = false;
                         ChatUtils.sendConfirmationMessage("Triangulation pos2 saved");
                     }
                     return 1;
