@@ -24,10 +24,13 @@ import java.util.Optional;
 public class Keybinds {
     public static KeyBinding setLocatorPosKey;
     private static boolean wasLocatorPosKeyPressed = false;
-    public static boolean last_first_locator_position = false;
+    // 0 = nächste ist pos1, 1 = nächste ist pos2, 2 = nächste ist pos3
+    public static int next_locator_position = 0;
+
     public static KeyBinding setTriangulationPosKey;
     private static boolean wasTriangulationPosKeyPressed = false;
     public static boolean last_first_triangulation_position = false;
+
     private static final KeyBinding.Category LOCATOR_TRIANGULATION_CATEGORY = KeyBinding.Category.create(Identifier.of("locator_triangulation", "category_name"));
 
     public static void register() {
@@ -45,9 +48,8 @@ public class Keybinds {
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register((MinecraftClient client) -> {
-            if (client.player == null) {
-                return;
-            }
+            if (client.player == null) return;
+
             boolean isLocatorPosKeyPressed = Keybinds.setLocatorPosKey.isPressed();
             boolean isTriangulationPosKeyPressed = Keybinds.setTriangulationPosKey.isPressed();
 
@@ -102,21 +104,25 @@ public class Keybinds {
             ChatUtils.sendErrorMessage("Failed to capture pos");
             return;
         }
-        if (Keybinds.last_first_locator_position) {
-            LocatorState.setPos2(info);
-            ChatUtils.sendConfirmationMessage("Locator pos2 saved");
-        } else {
-            LocatorState.setPos1(info);
-            ChatUtils.sendConfirmationMessage("Locator pos1 saved");
+        switch (Keybinds.next_locator_position) {
+            case 0 -> {
+                LocatorState.setPos1(info);
+                ChatUtils.sendConfirmationMessage("Locator pos1 saved");
+            }
+            case 1 -> {
+                LocatorState.setPos2(info);
+                ChatUtils.sendConfirmationMessage("Locator pos2 saved");
+            }
+            case 2 -> {
+                LocatorState.setPos3(info);
+                ChatUtils.sendConfirmationMessage("Locator pos3 saved (3-point mode aktiv)");
+            }
         }
-        Keybinds.last_first_locator_position = !Keybinds.last_first_locator_position;
+        Keybinds.next_locator_position = (Keybinds.next_locator_position + 1) % 3;
     }
 
     private static void onLocatorPosKeyCtrlRelease(MinecraftClient client) {
-        if (
-            LocatorState.getPos1() == null
-            || LocatorState.getPos2() == null
-        ) {
+        if (LocatorState.getPos1() == null || LocatorState.getPos2() == null) {
             ChatUtils.sendModMessage(
                 Text.literal("To get the result, both positions are needed")
                     .formatted(Formatting.ITALIC)
@@ -127,10 +133,10 @@ public class Keybinds {
     }
 
     private static void onLocatorPosKeyShiftRelease(MinecraftClient client) {
-        ChatUtils.sendConfirmationMessage("Skipped saving locator position " + (Keybinds.last_first_locator_position ?2:1));
-        Keybinds.last_first_locator_position = !Keybinds.last_first_locator_position;
+        int skipped = Keybinds.next_locator_position + 1;
+        ChatUtils.sendConfirmationMessage("Skipped saving locator position " + skipped);
+        Keybinds.next_locator_position = (Keybinds.next_locator_position + 1) % 3;
     }
-
 
     private static void onTriangulationPosKeyRelease(MinecraftClient client) {
         PlayerInfo playerInfo = PlayerDataProvider.getPlayerInfo(client);
@@ -159,14 +165,12 @@ public class Keybinds {
             return;
         }
         Optional<Triangulation.Result> result = Triangulation.triangulate(pos1, pos2);
-        if (result.isEmpty()) {
-            return;
-        }
+        if (result.isEmpty()) return;
         ChatUtils.sendTriangulationResult(result.get());
     }
 
     private static void onTriangulationPosKeyShiftRelease(MinecraftClient client) {
-        ChatUtils.sendConfirmationMessage("Skipped saving triangulation position " + (Keybinds.last_first_triangulation_position ?2:1));
+        ChatUtils.sendConfirmationMessage("Skipped saving triangulation position " + (Keybinds.last_first_triangulation_position ? 2 : 1));
         Keybinds.last_first_triangulation_position = !Keybinds.last_first_triangulation_position;
     }
 }
