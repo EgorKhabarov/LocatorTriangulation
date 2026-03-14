@@ -36,7 +36,7 @@ public class LocatorDataCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos1");
                     } else {
                         LocatorState.setPos1(info);
-                        Keybinds.last_first_locator_position = true;
+                        Keybinds.next_locator_position = 1;
                         ChatUtils.sendConfirmationMessage("Locator pos1 saved");
                     }
                     return 1;
@@ -51,8 +51,23 @@ public class LocatorDataCommand {
                         ChatUtils.sendErrorMessage("Failed to capture pos2");
                     } else {
                         LocatorState.setPos2(info);
-                        Keybinds.last_first_locator_position = false;
+                        Keybinds.next_locator_position = 2;
                         ChatUtils.sendConfirmationMessage("Locator pos2 saved");
+                    }
+                    return 1;
+                })
+            );
+
+            dispatcher.register(ClientCommandManager.literal("locator_pos3")
+                .executes(context -> {
+                    MinecraftClient client = MinecraftClient.getInstance();
+                    LocatorInfo info = LocatorDataProvider.getLocatorInfo(client);
+                    if (info == null) {
+                        ChatUtils.sendErrorMessage("Failed to capture pos3");
+                    } else {
+                        LocatorState.setPos3(info);
+                        Keybinds.next_locator_position = 0;
+                        ChatUtils.sendConfirmationMessage("Locator pos3 saved (3-point mode aktiv)");
                     }
                     return 1;
                 })
@@ -81,15 +96,23 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("locator_clear_poses")
+            dispatcher.register(ClientCommandManager.literal("locator_clear_pos3")
                 .executes(context -> {
-                    LocatorState.clearAll();
-                    ChatUtils.sendConfirmationMessage("pos1 and pos2 cleared");
+                    LocatorState.clearPos3();
+                    ChatUtils.sendConfirmationMessage("pos3 cleared");
                     return 1;
                 })
             );
 
-            // locate <player_name>
+            dispatcher.register(ClientCommandManager.literal("locator_clear_poses")
+                .executes(context -> {
+                    LocatorState.clearAll();
+                    Keybinds.next_locator_position = 0;
+                    ChatUtils.sendConfirmationMessage("pos1, pos2 and pos3 cleared");
+                    return 1;
+                })
+            );
+
             dispatcher.register(
                 ClientCommandManager.literal("locator_locate")
                     .then(ClientCommandManager.argument("player", StringArgumentType.word())
@@ -104,9 +127,7 @@ public class LocatorDataCommand {
                             if (client.player != null) {
                                 String selfName = client.player.getName().getString();
                                 for (String name : names) {
-                                    if (name.equalsIgnoreCase(selfName)) {
-                                        continue;
-                                    }
+                                    if (name.equalsIgnoreCase(selfName)) continue;
                                     builder.suggest(name);
                                 }
                             }
@@ -114,13 +135,8 @@ public class LocatorDataCommand {
                         })
                         .executes(context -> {
                             MinecraftClient client = MinecraftClient.getInstance();
-                            if (client.player == null) {
-                                return 1;
-                            }
-                            if (
-                                LocatorState.getPos1() == null
-                                && LocatorState.getPos2() == null
-                            ) {
+                            if (client.player == null) return 1;
+                            if (LocatorState.getPos1() == null && LocatorState.getPos2() == null) {
                                 ChatUtils.sendErrorMessage("Need both pos1 and pos2");
                                 return 1;
                             }
@@ -139,13 +155,8 @@ public class LocatorDataCommand {
             dispatcher.register(ClientCommandManager.literal("locator_locate_all")
                 .executes(context -> {
                     MinecraftClient client = MinecraftClient.getInstance();
-                    if (client.player == null) {
-                        return 1;
-                    }
-                    if (
-                        LocatorState.getPos1() == null
-                        && LocatorState.getPos2() == null
-                    ) {
+                    if (client.player == null) return 1;
+                    if (LocatorState.getPos1() == null && LocatorState.getPos2() == null) {
                         ChatUtils.sendErrorMessage("Need both pos1 and pos2");
                         return 1;
                     }
@@ -159,27 +170,26 @@ public class LocatorDataCommand {
     private static Optional<Triangulation.Result> getResultSingle(UUID uuid) {
         LocatorInfo pos1 = LocatorState.getPos1();
         LocatorInfo pos2 = LocatorState.getPos2();
+        LocatorInfo pos3 = LocatorState.getPos3();
 
-        if (pos1 == null || pos2 == null) {
-            return Optional.empty();
-        }
-        PlayerInfo self1 = pos1.self();
-        PlayerInfo self2 = pos2.self();
-        double x1 = self1.x(), z1 = self1.z();
-        double x2 = self2.x(), z2 = self2.z();
+        if (pos1 == null || pos2 == null) return Optional.empty();
 
         TargetInfo target1 = pos1.targets().get(uuid);
         TargetInfo target2 = pos2.targets().get(uuid);
+        if (target1 == null || target2 == null) return Optional.empty();
 
-        if (target1 == null || target2 == null) {
-            return Optional.empty();
+        PlayerInfo p1 = new PlayerInfo(pos1.self().x(), pos1.self().z(), target1.yaw());
+        PlayerInfo p2 = new PlayerInfo(pos2.self().x(), pos2.self().z(), target2.yaw());
+
+        if (pos3 != null) {
+            TargetInfo target3 = pos3.targets().get(uuid);
+            if (target3 != null) {
+                PlayerInfo p3 = new PlayerInfo(pos3.self().x(), pos3.self().z(), target3.yaw());
+                return Triangulation.triangulate(p1, p2, p3);
+            }
         }
-        double yaw1 = target1.yaw(), yaw2 = target2.yaw();
 
-        return Triangulation.triangulate(
-            new PlayerInfo(x1, z1, yaw1),
-            new PlayerInfo(x2, z2, yaw2)
-        );
+        return Triangulation.triangulate(p1, p2);
     }
 
     public static void handleLocateSingle(Name name) {
@@ -193,14 +203,12 @@ public class LocatorDataCommand {
 
     public static void handleLocateAll() {
         Map<String, Name> names = LocatorState.getAllNamesMap();
-
         Map<Name, Triangulation.Result> calculated = new HashMap<>();
         Set<Name> missed = new HashSet<>();
         int found = 0;
 
         for (Name name : names.values()) {
             Optional<Triangulation.Result> result = LocatorDataCommand.getResultSingle(name.uuid());
-
             if (result.isEmpty()) {
                 missed.add(name);
                 continue;
