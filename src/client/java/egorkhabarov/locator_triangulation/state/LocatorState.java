@@ -3,6 +3,7 @@ package egorkhabarov.locator_triangulation.state;
 import egorkhabarov.locator_triangulation.model.Name;
 import egorkhabarov.locator_triangulation.model.LocatorInfo;
 import egorkhabarov.locator_triangulation.model.TargetInfo;
+
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.Map;
@@ -10,35 +11,41 @@ import java.util.Map;
 public class LocatorState {
     private static LocatorInfo pos1;
     private static LocatorInfo pos2;
-    private static LocatorInfo pos3;
 
-    public static void setPos1(LocatorInfo info) { pos1 = info; }
-    public static void setPos2(LocatorInfo info) { pos2 = info; }
-    public static void setPos3(LocatorInfo info) { pos3 = info; }
+    public static void setPos1(LocatorInfo info) {pos1 = info;}
+    public static void setPos2(LocatorInfo info) {pos2 = info;}
 
-    public static LocatorInfo getPos1() { return pos1; }
-    public static LocatorInfo getPos2() { return pos2; }
-    public static LocatorInfo getPos3() { return pos3; }
+    public static LocatorInfo getPos1() {return pos1;}
+    public static LocatorInfo getPos2() {return pos2;}
 
-    public static void clearPos1() { pos1 = null; }
-    public static void clearPos2() { pos2 = null; }
-    public static void clearPos3() { pos3 = null; }
-    public static void clearAll()  { pos1 = null; pos2 = null; pos3 = null; }
+    public static void clearPos1() {pos1 = null;}
+    public static void clearPos2() {pos2 = null;}
 
+    public static void clearAll() {pos1 = null; pos2 = null;}
+
+    /**
+     * A dictionary of names that can be calculated
+     * @return .
+     */
     public static Map<String, Name> getComputableNamesMap() {
-        if (pos1 == null || pos2 == null) return new HashMap<>();
-
+        if (pos1 == null || pos2 == null) {
+            return new HashMap<>();
+        }
         Map<String, Name> names = new HashMap<>();
+
         for (UUID uuid : pos1.targets().keySet()) {
             TargetInfo target1 = pos1.targets().get(uuid);
-            if (target1 == null || target1.name() == null || target1.uuid() == null) continue;
-            if (!pos2.targets().containsKey(uuid)) continue;
+            if (target1 == null || target1.name() == null || target1.uuid() == null) {
+                continue;
+            }
 
+            if (!pos2.targets().containsKey(uuid)) {
+                continue;
+            }
             TargetInfo target2 = pos2.targets().get(uuid);
-            if (target2 == null || target2.name() == null || target2.uuid() == null) continue;
-
-            if (pos3 != null && !pos3.targets().containsKey(uuid)) continue;
-
+            if (target2 == null || target2.name() == null || target2.uuid() == null) {
+                continue;
+            }
             if (target1.uuid().equals(target2.uuid())) {
                 names.put(target1.name(), new Name(target1.uuid(), target1.name(), target1.color()));
             }
@@ -47,22 +54,19 @@ public class LocatorState {
     }
 
     public static Map<String, Name> getAllNamesMap() {
-        if (pos1 == null || pos2 == null) return new HashMap<>();
-
+        if (pos1 == null || pos2 == null) {
+            return new HashMap<>();
+        }
         Map<String, Name> names = new HashMap<>();
+
         for (UUID uuid : pos1.targets().keySet()) {
             TargetInfo target = pos1.targets().get(uuid);
             names.put(target.name(), new Name(target.uuid(), target.name(), target.color()));
         }
+
         for (UUID uuid : pos2.targets().keySet()) {
             TargetInfo target = pos2.targets().get(uuid);
             names.put(target.name(), new Name(target.uuid(), target.name(), target.color()));
-        }
-        if (pos3 != null) {
-            for (UUID uuid : pos3.targets().keySet()) {
-                TargetInfo target = pos3.targets().get(uuid);
-                names.put(target.name(), new Name(target.uuid(), target.name(), target.color()));
-            }
         }
         return names;
     }
