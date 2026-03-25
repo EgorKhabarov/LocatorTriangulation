@@ -1,15 +1,15 @@
 package egorkhabarov.locator_triangulation.data_providers;
 
 import egorkhabarov.locator_triangulation.model.PlayerInfo;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 
 public class PlayerDataProvider {
-    public static PlayerInfo getPlayerInfo(MinecraftClient client) {
-        if (client == null || client.player == null || client.world == null || client.getCameraEntity() == null) {
+    public static PlayerInfo getPlayerInfo(Minecraft client) {
+        if (client == null || client.player == null || client.level == null || client.getCameraEntity() == null) {
             return null;
         }
-        ClientPlayerEntity player = client.player;
-        return new PlayerInfo(player.getX(), player.getZ(), player.getYaw());
+        LocalPlayer player = client.player;
+        return new PlayerInfo(player.getX(), player.getZ(), player.getYRot());
     }
 }

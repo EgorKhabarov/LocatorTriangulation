@@ -8,7 +8,7 @@ import egorkhabarov.locator_triangulation.util.ChatUtils;
 import egorkhabarov.locator_triangulation.logic.Triangulation;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 import java.util.*;
 
@@ -17,7 +17,7 @@ public class TriangulationCommand {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("triangulation_pos1")
                 .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
+                    Minecraft client = Minecraft.getInstance();
                     PlayerInfo playerInfo = PlayerDataProvider.getPlayerInfo(client);
                     if (playerInfo == null) {
                         ChatUtils.sendErrorMessage("Failed to capture pos1");
@@ -32,7 +32,7 @@ public class TriangulationCommand {
 
             dispatcher.register(ClientCommandManager.literal("triangulation_pos2")
                 .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
+                    Minecraft client = Minecraft.getInstance();
                     PlayerInfo playerInfo = PlayerDataProvider.getPlayerInfo(client);
                     if (playerInfo == null) {
                         ChatUtils.sendErrorMessage("Failed to capture pos2");
@@ -78,7 +78,7 @@ public class TriangulationCommand {
 
             dispatcher.register(ClientCommandManager.literal("triangulation_locate")
                 .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
+                    Minecraft client = Minecraft.getInstance();
                     if (client.player == null) {
                         return 1;
                     }

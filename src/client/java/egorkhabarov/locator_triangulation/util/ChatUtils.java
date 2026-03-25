@@ -5,95 +5,100 @@ import egorkhabarov.locator_triangulation.model.Name;
 import egorkhabarov.locator_triangulation.model.LocatorInfo;
 import egorkhabarov.locator_triangulation.model.PlayerInfo;
 import egorkhabarov.locator_triangulation.model.TargetInfo;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.ChatFormatting;
 
 import java.util.*;
 
 public class ChatUtils {
-    private static final Text prefix = Text.literal("[")
-            .append(Text.literal("Locator").formatted(Formatting.YELLOW))
-            .append(Text.literal("] "));
-    private static final Formatting accentColor = Formatting.YELLOW;
-    private static final Formatting bgColor = Formatting.GRAY;
-    private static final Formatting accentBgColor = Formatting.DARK_GRAY;
+    private static final Component prefix = Component.literal("[")
+            .append(Component.literal("Locator").withStyle(ChatFormatting.YELLOW))
+            .append(Component.literal("] "));
+    private static final ChatFormatting accentColor = ChatFormatting.YELLOW;
+    private static final ChatFormatting bgColor = ChatFormatting.GRAY;
+    private static final ChatFormatting accentBgColor = ChatFormatting.DARK_GRAY;
 
     /**
      * (%.0f, %.0f) yaw=%.1f°
      */
-    public static Text formatPosition(double x, double z, double yaw) {
-        MutableText text = Text.empty();
-        text.append(Text.literal("(").formatted(ChatUtils.bgColor));
-        text.append(Text.literal(String.format("%.0f", x)).formatted(ChatUtils.accentColor));
-        text.append(Text.literal(", ").formatted(ChatUtils.bgColor));
-        text.append(Text.literal(String.format("%.0f", z)).formatted(ChatUtils.accentColor));
-        text.append(Text.literal(") yaw").formatted(ChatUtils.bgColor));
-        text.append(Text.literal("=").formatted(ChatUtils.accentBgColor));
-        text.append(Text.literal(String.format("%.1f°", yaw)).formatted(ChatUtils.accentColor));
+    public static Component formatPosition(double x, double z, double yaw) {
+        MutableComponent text = Component.empty();
+        text.append(Component.literal("(").withStyle(ChatUtils.bgColor));
+        text.append(Component.literal(String.format("%.0f", x)).withStyle(ChatUtils.accentColor));
+        text.append(Component.literal(", ").withStyle(ChatUtils.bgColor));
+        text.append(Component.literal(String.format("%.0f", z)).withStyle(ChatUtils.accentColor));
+        text.append(Component.literal(") yaw").withStyle(ChatUtils.bgColor));
+        text.append(Component.literal("=").withStyle(ChatUtils.accentBgColor));
+        text.append(Component.literal(String.format("%.1f°", yaw)).withStyle(ChatUtils.accentColor));
         return text;
     }
 
     public static void sendModMessage(Object... parts) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) {
             return;
         }
-        MutableText result = ChatUtils.prefix.copy();
+        MutableComponent result = ChatUtils.prefix.copy();
 
         for (Object part : parts) {
-            if (part instanceof Text text) {
+            if (part instanceof Component text) {
                 result.append(text);
             } else if (part instanceof String str) {
-                result.append(Text.literal(str));
+                result.append(Component.literal(str));
             } else {
-                result.append(Text.literal(String.valueOf(part)));
+                result.append(Component.literal(String.valueOf(part)));
             }
         }
-        client.player.sendMessage(result, false);
+        client.player.displayClientMessage(result, false);
     }
 
     public static void sendErrorMessage(String message) {
-        ChatUtils.sendModMessage(Text.literal(message).formatted(Formatting.RED));
+        ChatUtils.sendModMessage(Component.literal(message).withStyle(ChatFormatting.RED));
     }
 
     public static void sendConfirmationMessage(String message) {
-        ChatUtils.sendModMessage(Text.literal(message).formatted(Formatting.GREEN));
+        ChatUtils.sendModMessage(Component.literal(message).withStyle(ChatFormatting.GREEN));
     }
 
-    public static Text formatPlayerCoordinates(double x, double z, double angle) {
+    public static Component formatPlayerCoordinates(double x, double z, double angle) {
         String coordsRaw = String.format("%.0f %.0f", x, z);
-        MutableText coords = Text.literal(coordsRaw)
-            .styled(style -> style
-                .withFormatting(ChatUtils.bgColor, Formatting.UNDERLINE)
-                .withHoverEvent(new HoverEvent.ShowText(Text.literal("Click to copy coordinates")))
+        MutableComponent coords = Component.literal(coordsRaw)
+            .withStyle(style -> style
+                .withColor(ChatUtils.bgColor)
+                .withUnderlined(true)
+                .withHoverEvent(new HoverEvent.ShowText(Component.literal("Click to copy coordinates")))
                 .withClickEvent(new ClickEvent.CopyToClipboard(coordsRaw))
             );
 
-        Formatting angle_color;
+        ChatFormatting angle_color;
         if (angle >= 70 && angle <= 100)
-            angle_color = Formatting.GREEN;
+            angle_color = ChatFormatting.GREEN;
         else if (angle >= 20 && angle < 70 || angle > 100 && angle <= 150)
-            angle_color = Formatting.YELLOW;
+            angle_color = ChatFormatting.YELLOW;
         else
-            angle_color = Formatting.RED;
+            angle_color = ChatFormatting.RED;
 
-        MutableText angleText = Text.literal(String.format(" %.1f°", angle))
+        MutableComponent angleText = Component.literal(String.format(" %.1f°", angle))
             .setStyle(Style.EMPTY.withColor(angle_color));
 
-        return Text.empty()
+        return Component.empty()
             .append(coords)
             .append(angleText);
     }
 
     public static void sendLocatorResult(Name name, Triangulation.Result result) {
-        Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.angle());
+        Component formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.angle());
         ChatUtils.sendModMessage(
-            Text.literal(name.name())
-                .styled(
+            Component.literal(name.name())
+                .withStyle(
                     style -> style
                         .withColor(name.color())
-                        .withHoverEvent(new HoverEvent.ShowText(Text.literal("UUID:" + name.uuid())))
+                        .withHoverEvent(new HoverEvent.ShowText(Component.literal("UUID:" + name.uuid())))
                         .withClickEvent(new ClickEvent.CopyToClipboard(name.uuid().toString()))
                 ),
             ": ",
@@ -105,40 +110,40 @@ public class ChatUtils {
         Set<Name> unionNames = new HashSet<>(calculated.keySet());
         unionNames.addAll(missed);
 
-        MutableText headline = Text.literal("Found: " + unionNames.size())
-            .formatted(ChatUtils.bgColor);
+        MutableComponent headline = Component.literal("Found: " + unionNames.size())
+            .withStyle(ChatUtils.bgColor);
         if (!calculated.isEmpty()) {
             headline.append(
-                Text.literal(" Calculated: " + calculated.size())
-                    .formatted(Formatting.GREEN)
+                Component.literal(" Calculated: " + calculated.size())
+                    .withStyle(ChatFormatting.GREEN)
             );
         }
         if (!missed.isEmpty()) {
             headline.append(
-                Text.literal(" Missed: " + missed.size())
-                    .formatted(Formatting.RED)
+                Component.literal(" Missed: " + missed.size())
+                    .withStyle(ChatFormatting.RED)
             );
         }
 
-        MutableText calculated_text = Text.empty();
+        MutableComponent calculated_text = Component.empty();
         boolean first = true;
         for (Name name : SortUtils.sortByName(calculated.keySet(), Name::name)) {
             if (!first) {
                 calculated_text.append("\n");
             }
             Triangulation.Result result = calculated.get(name);
-            Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(
+            Component formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(
                 result.x(),
                 result.z(),
                 result.angle()
             );
             calculated_text
                 .append(
-                    Text.literal(name.name())
-                    .styled(
+                    Component.literal(name.name())
+                    .withStyle(
                         style -> style
                             .withColor(name.color())
-                            .withHoverEvent(new HoverEvent.ShowText(Text.literal("UUID:" + name.uuid())))
+                            .withHoverEvent(new HoverEvent.ShowText(Component.literal("UUID:" + name.uuid())))
                             .withClickEvent(new ClickEvent.CopyToClipboard(name.uuid().toString()))
                     )
                 )
@@ -146,17 +151,18 @@ public class ChatUtils {
                 .append(formattedPlayerCoordinates);
             first = false;
         }
-        MutableText missed_text = Text.empty();
+        MutableComponent missed_text = Component.empty();
         for (Name name : SortUtils.sortByName(missed, Name::name)) {
             if (!first) {
                 missed_text.append("\n");
             }
             missed_text.append(
-                Text.literal(name.name())
-                    .styled(
+                Component.literal(name.name())
+                    .withStyle(
                         style -> style
-                            .withFormatting(Formatting.RED, Formatting.ITALIC)
-                            .withHoverEvent(new HoverEvent.ShowText(Text.literal("UUID:" + name.uuid())))
+                            .withColor(ChatFormatting.RED)
+                            .withItalic(true)
+                            .withHoverEvent(new HoverEvent.ShowText(Component.literal("UUID:" + name.uuid())))
                             .withClickEvent(new ClickEvent.CopyToClipboard(name.uuid().toString()))
                     )
             );
@@ -164,7 +170,7 @@ public class ChatUtils {
         }
 
         ChatUtils.sendModMessage(
-            Text.empty()
+            Component.empty()
                 .append(headline)
                 .append("\n")
                 .append(calculated_text)
@@ -173,15 +179,15 @@ public class ChatUtils {
     }
 
     public static void sendTriangulationResult(Triangulation.Result result) {
-        Text formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.angle());
+        Component formattedPlayerCoordinates = ChatUtils.formatPlayerCoordinates(result.x(), result.z(), result.angle());
         ChatUtils.sendModMessage(formattedPlayerCoordinates);
     }
 
-    public static Text formatLocatorPosition(LocatorInfo pos) {
+    public static Component formatLocatorPosition(LocatorInfo pos) {
         if (pos == null) {
-            return Text.literal("No locator data available").formatted(Formatting.RED);
+            return Component.literal("No locator data available").withStyle(ChatFormatting.RED);
         }
-        MutableText text = Text.empty();
+        MutableComponent text = Component.empty();
         text.append(ChatUtils.formatPosition(pos.self().x(), pos.self().z(), pos.self().yaw())).append("\n");
 
         if (!pos.targets().isEmpty()) {
@@ -190,30 +196,30 @@ public class ChatUtils {
                     continue;
                 }
                 text.append(
-                    Text.literal(target.name())
-                        .styled(
+                    Component.literal(target.name())
+                        .withStyle(
                         style -> style
                             .withColor(target.color())
-                            .withHoverEvent(new HoverEvent.ShowText(Text.literal("UUID:" + target.uuid())))
+                            .withHoverEvent(new HoverEvent.ShowText(Component.literal("UUID:" + target.uuid())))
                         )
                     )
-                    .append(Text.literal(" yaw").formatted(ChatUtils.bgColor))
-                    .append(Text.literal("=").formatted(ChatUtils.accentBgColor))
-                    .append(Text.literal(String.format("%.1f°", target.yaw())).formatted(ChatUtils.accentColor))
-                    .append(Text.literal(" dist").formatted(ChatUtils.bgColor))
-                    .append(Text.literal("=").formatted(ChatUtils.accentBgColor))
-                    .append(Text.literal(String.format("%.0f", target.distance())).formatted(ChatUtils.accentColor))
+                    .append(Component.literal(" yaw").withStyle(ChatUtils.bgColor))
+                    .append(Component.literal("=").withStyle(ChatUtils.accentBgColor))
+                    .append(Component.literal(String.format("%.1f°", target.yaw())).withStyle(ChatUtils.accentColor))
+                    .append(Component.literal(" dist").withStyle(ChatUtils.bgColor))
+                    .append(Component.literal("=").withStyle(ChatUtils.accentBgColor))
+                    .append(Component.literal(String.format("%.0f", target.distance())).withStyle(ChatUtils.accentColor))
                     .append("\n");
             }
         } else {
-            text.append(Text.literal("No locator data").formatted(Formatting.RED));
+            text.append(Component.literal("No locator data").withStyle(ChatFormatting.RED));
         }
         return text;
     }
 
-    public static Text formatTriangulationPosition(PlayerInfo pos) {
+    public static Component formatTriangulationPosition(PlayerInfo pos) {
         if (pos == null) {
-            return Text.literal("No data available").formatted(Formatting.RED);
+            return Component.literal("No data available").withStyle(ChatFormatting.RED);
         }
         return ChatUtils.formatPosition(pos.x(), pos.z(), pos.yaw());
     }
@@ -226,10 +232,10 @@ public class ChatUtils {
             return;
         }
         int counter = 1;
-        MutableText text = Text.empty();
+        MutableComponent text = Component.empty();
         for (LocatorInfo pos : positions) {
-            Text formatLocatorPosition = ChatUtils.formatLocatorPosition(pos);
-            text.append(Text.literal("Pos " + counter + "\n").formatted(Formatting.BOLD))
+            Component formatLocatorPosition = ChatUtils.formatLocatorPosition(pos);
+            text.append(Component.literal("Pos " + counter + "\n").withStyle(ChatFormatting.BOLD))
                 .append(formatLocatorPosition).append("\n");
             counter++;
         }
@@ -244,10 +250,10 @@ public class ChatUtils {
             return;
         }
         int counter = 1;
-        MutableText text = Text.empty();
+        MutableComponent text = Component.empty();
         for (PlayerInfo pos : positions) {
-            Text formatTriangulationPosition = ChatUtils.formatTriangulationPosition(pos);
-            text.append(Text.literal("Pos " + counter + "\n").formatted(Formatting.BOLD))
+            Component formatTriangulationPosition = ChatUtils.formatTriangulationPosition(pos);
+            text.append(Component.literal("Pos " + counter + "\n").withStyle(ChatFormatting.BOLD))
                 .append(formatTriangulationPosition).append("\n");
             counter++;
         }

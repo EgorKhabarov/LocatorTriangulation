@@ -10,8 +10,8 @@ import egorkhabarov.locator_triangulation.state.*;
 import egorkhabarov.locator_triangulation.util.ChatUtils;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import egorkhabarov.locator_triangulation.data_providers.LocatorDataProvider;
 import egorkhabarov.locator_triangulation.logic.Triangulation;
 
@@ -22,7 +22,7 @@ public class LocatorDataCommand {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("locator_data")
                 .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
+                    Minecraft client = Minecraft.getInstance();
                     ChatUtils.sendLocatorPositions(LocatorDataProvider.getLocatorInfo(client));
                     return 1;
                 })
@@ -30,13 +30,13 @@ public class LocatorDataCommand {
 
             dispatcher.register(ClientCommandManager.literal("locator_pos1")
                 .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
+                    Minecraft client = Minecraft.getInstance();
                     LocatorInfo info = LocatorDataProvider.getLocatorInfo(client);
                     if (info == null) {
                         ChatUtils.sendErrorMessage("Failed to capture pos1");
                     } else {
                         LocatorState.setPos1(info);
-                        Keybinds.next_locator_position = 1;
+                        Keybinds.last_first_locator_position = true;
                         ChatUtils.sendConfirmationMessage("Locator pos1 saved");
                     }
                     return 1;
@@ -45,13 +45,13 @@ public class LocatorDataCommand {
 
             dispatcher.register(ClientCommandManager.literal("locator_pos2")
                 .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
+                    Minecraft client = Minecraft.getInstance();
                     LocatorInfo info = LocatorDataProvider.getLocatorInfo(client);
                     if (info == null) {
                         ChatUtils.sendErrorMessage("Failed to capture pos2");
                     } else {
                         LocatorState.setPos2(info);
-                        Keybinds.next_locator_position = 2;
+                        Keybinds.last_first_locator_position = false;
                         ChatUtils.sendConfirmationMessage("Locator pos2 saved");
                     }
                     return 1;
@@ -84,36 +84,43 @@ public class LocatorDataCommand {
             dispatcher.register(ClientCommandManager.literal("locator_clear_poses")
                 .executes(context -> {
                     LocatorState.clearAll();
-                    Keybinds.next_locator_position = 0;
-                    ChatUtils.sendConfirmationMessage("pos1, pos2 and pos3 cleared");
+                    ChatUtils.sendConfirmationMessage("pos1 and pos2 cleared");
                     return 1;
                 })
             );
 
+            // locate <player_name>
             dispatcher.register(
                 ClientCommandManager.literal("locator_locate")
                     .then(ClientCommandManager.argument("player", StringArgumentType.word())
                         .suggests((context, builder) -> {
-                            MinecraftClient client = MinecraftClient.getInstance();
+                            Minecraft client = Minecraft.getInstance();
                             Set<String> names = new HashSet<>(LocatorState.getComputableNamesMap().keySet());
-                            if (client.world != null) {
-                                for (PlayerEntity p : client.world.getPlayers()) {
+                            if (client.level != null) {
+                                for (AbstractClientPlayer p : client.level.players()) {
                                     names.add(p.getGameProfile().name());
                                 }
                             }
                             if (client.player != null) {
                                 String selfName = client.player.getName().getString();
                                 for (String name : names) {
-                                    if (name.equalsIgnoreCase(selfName)) continue;
+                                    if (name.equalsIgnoreCase(selfName)) {
+                                        continue;
+                                    }
                                     builder.suggest(name);
                                 }
                             }
                             return builder.buildFuture();
                         })
                         .executes(context -> {
-                            MinecraftClient client = MinecraftClient.getInstance();
-                            if (client.player == null) return 1;
-                            if (LocatorState.getPos1() == null && LocatorState.getPos2() == null) {
+                            Minecraft client = Minecraft.getInstance();
+                            if (client.player == null) {
+                                return 1;
+                            }
+                            if (
+                                LocatorState.getPos1() == null
+                                && LocatorState.getPos2() == null
+                            ) {
                                 ChatUtils.sendErrorMessage("Need both pos1 and pos2");
                                 return 1;
                             }
@@ -131,9 +138,14 @@ public class LocatorDataCommand {
 
             dispatcher.register(ClientCommandManager.literal("locator_locate_all")
                 .executes(context -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
-                    if (client.player == null) return 1;
-                    if (LocatorState.getPos1() == null && LocatorState.getPos2() == null) {
+                    Minecraft client = Minecraft.getInstance();
+                    if (client.player == null) {
+                        return 1;
+                    }
+                    if (
+                        LocatorState.getPos1() == null
+                        && LocatorState.getPos2() == null
+                    ) {
                         ChatUtils.sendErrorMessage("Need both pos1 and pos2");
                         return 1;
                     }
