@@ -54,7 +54,7 @@ public class ChatUtils {
                 result.append(Component.literal(String.valueOf(part)));
             }
         }
-        client.player.displayClientMessage(result, false);
+        client.player.sendSystemMessage(result);
     }
 
     public static void sendErrorMessage(String message) {

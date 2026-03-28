@@ -10,7 +10,7 @@ import egorkhabarov.locator_triangulation.state.LocatorState;
 import egorkhabarov.locator_triangulation.state.TriangulationState;
 import egorkhabarov.locator_triangulation.util.ChatUtils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -27,7 +27,7 @@ public class Keybinds {
 
     public static KeyMapping setLocatorPosKey;
     private static boolean wasLocatorPosKeyPressed = false;
-    public static boolean last_first_locator_position  = false;
+    public static boolean last_first_locator_position = false;
 
     public static KeyMapping setTriangulationPosKey;
     private static boolean wasTriangulationPosKeyPressed = false;
@@ -36,14 +36,14 @@ public class Keybinds {
     private static final KeyMapping.Category LOCATOR_TRIANGULATION_CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("category_name", "locator_triangulation"));
 
     public static void register() {
-        setLocatorPosKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        setLocatorPosKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.locator_triangulation.set_locator_pos",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
                 LOCATOR_TRIANGULATION_CATEGORY
         ));
 
-        setTriangulationPosKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        setTriangulationPosKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.locator_triangulation.set_triangulation_pos",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
@@ -139,7 +139,7 @@ public class Keybinds {
     }
 
     private static void onLocatorPosKeyShiftRelease(Minecraft client) {
-        ChatUtils.sendConfirmationMessage("Skipped saving locator position " + (Keybinds.last_first_locator_position ?2:1));
+        ChatUtils.sendConfirmationMessage("Skipped saving locator position " + (Keybinds.last_first_locator_position ? 2 : 1));
         Keybinds.last_first_locator_position = !Keybinds.last_first_locator_position;
     }
 
@@ -171,10 +171,7 @@ public class Keybinds {
             return;
         }
         Optional<Triangulation.Result> result = Triangulation.triangulate(pos1, pos2);
-        if (result.isEmpty()) {
-            return;
-        }
-        ChatUtils.sendTriangulationResult(result.get());
+        result.ifPresent(ChatUtils::sendTriangulationResult);
     }
 
     private static void onTriangulationPosKeyShiftRelease(Minecraft client) {

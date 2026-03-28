@@ -8,7 +8,7 @@ import egorkhabarov.locator_triangulation.model.PlayerInfo;
 import egorkhabarov.locator_triangulation.model.TargetInfo;
 import egorkhabarov.locator_triangulation.state.*;
 import egorkhabarov.locator_triangulation.util.ChatUtils;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -20,7 +20,7 @@ import java.util.*;
 public class LocatorDataCommand {
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("locator_data")
+            dispatcher.register(ClientCommands.literal("locator_data")
                 .executes(context -> {
                     Minecraft client = Minecraft.getInstance();
                     ChatUtils.sendLocatorPositions(LocatorDataProvider.getLocatorInfo(client));
@@ -28,7 +28,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("locator_pos1")
+            dispatcher.register(ClientCommands.literal("locator_pos1")
                 .executes(context -> {
                     Minecraft client = Minecraft.getInstance();
                     LocatorInfo info = LocatorDataProvider.getLocatorInfo(client);
@@ -43,7 +43,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("locator_pos2")
+            dispatcher.register(ClientCommands.literal("locator_pos2")
                 .executes(context -> {
                     Minecraft client = Minecraft.getInstance();
                     LocatorInfo info = LocatorDataProvider.getLocatorInfo(client);
@@ -58,14 +58,14 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("locator_get_poses")
+            dispatcher.register(ClientCommands.literal("locator_get_poses")
                 .executes(context -> {
                     ChatUtils.sendLocatorPositions(LocatorState.getPos1(), LocatorState.getPos2());
                     return 1;
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("locator_clear_pos1")
+            dispatcher.register(ClientCommands.literal("locator_clear_pos1")
                 .executes(context -> {
                     LocatorState.clearPos1();
                     ChatUtils.sendConfirmationMessage("pos1 cleared");
@@ -73,7 +73,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("locator_clear_pos2")
+            dispatcher.register(ClientCommands.literal("locator_clear_pos2")
                 .executes(context -> {
                     LocatorState.clearPos2();
                     ChatUtils.sendConfirmationMessage("pos2 cleared");
@@ -81,7 +81,7 @@ public class LocatorDataCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("locator_clear_poses")
+            dispatcher.register(ClientCommands.literal("locator_clear_poses")
                 .executes(context -> {
                     LocatorState.clearAll();
                     ChatUtils.sendConfirmationMessage("pos1 and pos2 cleared");
@@ -91,8 +91,8 @@ public class LocatorDataCommand {
 
             // locate <player_name>
             dispatcher.register(
-                ClientCommandManager.literal("locator_locate")
-                    .then(ClientCommandManager.argument("player", StringArgumentType.word())
+                ClientCommands.literal("locator_locate")
+                    .then(ClientCommands.argument("player", StringArgumentType.word())
                         .suggests((context, builder) -> {
                             Minecraft client = Minecraft.getInstance();
                             Set<String> names = new HashSet<>(LocatorState.getComputableNamesMap().keySet());
@@ -136,7 +136,7 @@ public class LocatorDataCommand {
                     )
             );
 
-            dispatcher.register(ClientCommandManager.literal("locator_locate_all")
+            dispatcher.register(ClientCommands.literal("locator_locate_all")
                 .executes(context -> {
                     Minecraft client = Minecraft.getInstance();
                     if (client.player == null) {

@@ -6,7 +6,7 @@ import egorkhabarov.locator_triangulation.model.PlayerInfo;
 import egorkhabarov.locator_triangulation.state.TriangulationState;
 import egorkhabarov.locator_triangulation.util.ChatUtils;
 import egorkhabarov.locator_triangulation.logic.Triangulation;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.Minecraft;
 
@@ -15,7 +15,7 @@ import java.util.*;
 public class TriangulationCommand {
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("triangulation_pos1")
+            dispatcher.register(ClientCommands.literal("triangulation_pos1")
                 .executes(context -> {
                     Minecraft client = Minecraft.getInstance();
                     PlayerInfo playerInfo = PlayerDataProvider.getPlayerInfo(client);
@@ -30,7 +30,7 @@ public class TriangulationCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("triangulation_pos2")
+            dispatcher.register(ClientCommands.literal("triangulation_pos2")
                 .executes(context -> {
                     Minecraft client = Minecraft.getInstance();
                     PlayerInfo playerInfo = PlayerDataProvider.getPlayerInfo(client);
@@ -45,14 +45,14 @@ public class TriangulationCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("triangulation_get_poses")
+            dispatcher.register(ClientCommands.literal("triangulation_get_poses")
                 .executes(context -> {
                     ChatUtils.sendTriangulationPositions(TriangulationState.getPos1(), TriangulationState.getPos2());
                     return 1;
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("triangulation_clear_pos1")
+            dispatcher.register(ClientCommands.literal("triangulation_clear_pos1")
                 .executes(context -> {
                     TriangulationState.clearPos1();
                     ChatUtils.sendConfirmationMessage("pos1 cleared");
@@ -60,7 +60,7 @@ public class TriangulationCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("triangulation_clear_pos2")
+            dispatcher.register(ClientCommands.literal("triangulation_clear_pos2")
                 .executes(context -> {
                     TriangulationState.clearPos2();
                     ChatUtils.sendConfirmationMessage("pos2 cleared");
@@ -68,7 +68,7 @@ public class TriangulationCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("triangulation_clear_poses")
+            dispatcher.register(ClientCommands.literal("triangulation_clear_poses")
                 .executes(context -> {
                     TriangulationState.clearAll();
                     ChatUtils.sendConfirmationMessage("pos1 and pos2 cleared");
@@ -76,7 +76,7 @@ public class TriangulationCommand {
                 })
             );
 
-            dispatcher.register(ClientCommandManager.literal("triangulation_locate")
+            dispatcher.register(ClientCommands.literal("triangulation_locate")
                 .executes(context -> {
                     Minecraft client = Minecraft.getInstance();
                     if (client.player == null) {
