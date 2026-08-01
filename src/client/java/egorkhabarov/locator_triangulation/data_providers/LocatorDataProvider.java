@@ -34,7 +34,7 @@ public class LocatorDataProvider {
                 if (uuid == null) {
                     return;
                 }
-                double relativeYaw = waypoint.yawAngleToCamera(level, client.gameRenderer.getMainCamera(), _ -> 1.0f);
+                double relativeYaw = waypoint.yawAngleToCamera(level, client.gameRenderer.mainCamera(), _ -> 1.0f);
 
                 float playerYaw = camera.getYRot();
                 double absYaw = (relativeYaw + playerYaw + 360.0) % 360.0;
